@@ -1,6 +1,8 @@
 import type { 
     ApiResponse, 
     CurrentWeatherResponse,
+    ForecastResponse,
+    AirQualityResponse,
     GeocodingLocation,
     TemperatureUnit
 } from "../types/weather"
@@ -184,13 +186,26 @@ export async function fetchCurrentWeatherByCoordinates(
     lon: number,
     units: TemperatureUnit = 'metric'
 ): Promise<ApiResponse<CurrentWeatherResponse>> {
-    return fetchWithEnvelop('weather', { lat, lon, units })
+    return fetchWithEnvelop('/weather', { lat, lon, units })
 }
 
 // Fetch 5-day / 3-hour forecast data.
+export async function fetch5DayForecastByCoords(
+    lat: number, 
+    lon: number, 
+    units: TemperatureUnit = 'metric'
+): Promise<ApiResponse<ForecastResponse>> {
+    return fetchWithEnvelop('/forecast', { lat, lon, units })
+}
 
 
 // Fetch Air Quality Index (AQI) from OpenWeatherMap Air Pollution API.
+export async function fetchAirQualityByCoords(
+    lat: number, 
+    lon: number
+): Promise<ApiResponse<AirQualityResponse>> {
+    return fetchWithEnvelop('/air_pollution', { lat, lon })
+}
 
 
 // Implement central error handling for 404 (city not found), 401 (invalid key), and network timeouts.
