@@ -97,7 +97,7 @@ function parseApiErrorMessage(status: number, rawMessage: string): string {
 }
 
 
-// === SEARCH FUNCTIONS ============================================================================
+// === SEARCH FUNCTION =============================================================================
 
 // Search city by name
 export async function searchCityByName(
@@ -181,7 +181,7 @@ export async function searchCityByName(
 // === FETCH REQUESTS =========================================================================
 
 // Fetch current weather by coordinates (`lat`, `lon`).
-export async function fetchCurrentWeatherByCoordinates(
+export async function fetchCurrentWeatherByCoords(
     lat: number,
     lon: number,
     units: TemperatureUnit = 'metric'
@@ -206,6 +206,3 @@ export async function fetchAirQualityByCoords(
 ): Promise<ApiResponse<AirQualityResponse>> {
     return fetchWithEnvelop('/air_pollution', { lat, lon })
 }
-
-
-// Implement central error handling for 404 (city not found), 401 (invalid key), and network timeouts.
