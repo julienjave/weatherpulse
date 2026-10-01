@@ -19,7 +19,8 @@ const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY as string
 async function fetchWithEnvelop<T>(
     endpoint: string, 
     params: Record<string, string | number>, 
-    timeoutMs: number = 8000
+    timeoutMs: number = 8000,
+    signal?: AbortSignal
 ): Promise<ApiResponse<T>> {
     // 1. Build Query String
     const queryParams = new URLSearchParams({
@@ -33,9 +34,14 @@ async function fetchWithEnvelop<T>(
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
+    // Combine timeout signal with optional user-provided cancellation signal
+    const combinedSignal = signal 
+        ? AbortSignal.any([controller.signal, signal])
+        : controller.signal
+
     // 3. Fetch request
     try {
-        const response = await fetch(url, {signal: controller.signal})
+        const response = await fetch(url, {signal: combinedSignal})
         clearTimeout(timeoutId)
 
         const payload = await response.json()
@@ -184,25 +190,28 @@ export async function searchCityByName(
 export async function fetchCurrentWeatherByCoords(
     lat: number,
     lon: number,
-    units: TemperatureUnit = 'metric'
+    units: TemperatureUnit = 'metric',
+    signal?: AbortSignal
 ): Promise<ApiResponse<CurrentWeatherResponse>> {
-    return fetchWithEnvelop('/weather', { lat, lon, units })
+    return fetchWithEnvelop('/weather', { lat, lon, units }, 8000, signal)
 }
 
 // Fetch 5-day / 3-hour forecast data.
 export async function fetch5DayForecastByCoords(
     lat: number, 
     lon: number, 
-    units: TemperatureUnit = 'metric'
+    units: TemperatureUnit = 'metric',
+    signal?: AbortSignal
 ): Promise<ApiResponse<ForecastResponse>> {
-    return fetchWithEnvelop('/forecast', { lat, lon, units })
+    return fetchWithEnvelop('/forecast', { lat, lon, units }, 8000, signal)
 }
 
 
 // Fetch Air Quality Index (AQI) from OpenWeatherMap Air Pollution API.
 export async function fetchAirQualityByCoords(
     lat: number, 
-    lon: number
+    lon: number,
+    signal?: AbortSignal
 ): Promise<ApiResponse<AirQualityResponse>> {
-    return fetchWithEnvelop('/air_pollution', { lat, lon })
+    return fetchWithEnvelop('/air_pollution', { lat, lon }, 8000, signal)
 }

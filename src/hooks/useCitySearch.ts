@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react"
+import { useState, useRef, useMemo, useCallback, useEffect } from "react"
 import { searchCityByName } from "../services/weatherApi"
 import type { GeocodingLocation } from "../types/weather"
 
@@ -25,7 +25,7 @@ function createDebounce<T extends(...args: any[]) => void>(funct: T, wait: numbe
 
 // === USECITYSEARCH ========================================================================
 
-export async function useCitySearch() {
+export function useCitySearch() {
     // 1. STATE VARIABLES
 
     // Keeps track of whatever the user types into the input field in real time
@@ -40,15 +40,9 @@ export async function useCitySearch() {
     // Store active AbortController in a ref so it persists across renders without triggering them
     const abortControllerRef = useRef<AbortController | null>(null)
 
-    // Wrap fetch in a debounced function using useMemo
-    const debouncedSearch = useMemo(
-        () => createDebounce((query: string) => performSearch(query), 500), []
-    )
-
-
     // 2. SEARCH LOGIC
 
-    async function performSearch(query: string) {
+    const performSearch = useCallback(async (query: string) => {
 
         // Cancel previous request if user typed again before it completed
         if(abortControllerRef.current) {
@@ -75,15 +69,24 @@ export async function useCitySearch() {
             setOptions(data)
         }
         setIsSearching(false)
-    }
+    }, [])
 
-    // 3. EVENT HANDLER
+    // 3. DEBOUNCED SEARCH
+    // Wrap fetch in a debounced function using useMemo
+    const debouncedSearch = useMemo(
+        () => createDebounce((query: string) => performSearch(query), 500), 
+        [performSearch]
+    )
+
+    // 4. EVENT HANDLER
 
     // called on input change
-    function handleInputChange(value: string) {
+    const handleInputChange = useCallback((value: string) => {
         setSearchTerm(value) // Immediate update for input responsiveness
 
-        if(!value.trim()) {
+        const trimmed = value.trim()
+
+        if(!trimmed || trimmed.length<2) {
             // User cleared the search box:
             debouncedSearch.cancel() // 1. Cancel queued 500ms timer
             abortControllerRef.current?.abort() // 2. Abort active network request
@@ -94,10 +97,20 @@ export async function useCitySearch() {
         }
 
         // Pass non-empty query to debouncer
-        debouncedSearch(value) // Delay actual API call (performSearch()) by 500ms (using debounce())
-    }
+        debouncedSearch(trimmed) // Delay actual API call (performSearch()) by 500ms (using debounce())
+    }, [debouncedSearch])
 
-    // 4. RETURN EVENT HANDLER AND STATES VALUES
+    // 5. CLEANUP ON UNMOUNT
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel()
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort()
+            }
+        }
+    }, [debouncedSearch])
+
+    // 6. RETURN EVENT HANDLER AND STATES VALUES
     return {
         searchTerm,
         handleInputChange,
