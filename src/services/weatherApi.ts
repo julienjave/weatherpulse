@@ -133,7 +133,7 @@ export async function searchCityByName(
         ? AbortSignal.any([externalSignal, timeoutController.signal])
         : timeoutController.signal
 
-    // 2. Fetch Request
+    // 3. Fetch Request
     try {
         const response = await fetch(url, { signal })
         clearTimeout(timeoutId)
@@ -171,6 +171,82 @@ export async function searchCityByName(
                 error: {
                     status: 408,
                     message: 'Search timed out. Please check your network connection.',
+                },
+            }
+        }
+
+        const message = err instanceof Error ? err.message : 'An unexpected error occurred.'
+        return {
+            data: null,
+            error: { status: 500, message },
+        }
+    }
+}
+
+// Get city name by coordinates
+export async function getReverseGeocode(
+    lat: number, 
+    lon: number, 
+    limit: number = 1,
+    externalSignal?: AbortSignal
+): Promise<ApiResponse<GeocodingLocation[]>> {
+    // 1. Build Query String
+    const queryParams = new URLSearchParams({
+        lat: String(lat),
+        lon: String(lon),
+        limit: String(limit),
+        appid: API_KEY
+    })
+
+    const url = `${GEO_BASE_URL}/reverse?${queryParams.toString()}`
+
+    // 2. Setup Timeout Controller (8s default)
+    const timeoutController = new AbortController()
+    const timeoutId = setTimeout(() => timeoutController.abort(), 8000)
+
+    // Combine external cancellation signal (if provided by search bar) with timeout signal
+    const signal = externalSignal
+        ? AbortSignal.any([externalSignal, timeoutController.signal])
+        : timeoutController.signal
+
+    // 3. Fetch Request
+    try {
+        const response = await fetch(url, { signal })
+        clearTimeout(timeoutId)
+
+        const payload = await response.json()
+
+        // 3. Handle Non-200 HTTP Responses
+        if(!response.ok) {
+            return {
+                data: null,
+                error: {
+                    status: response.status, 
+                    message: payload?.message || 'Failed to reverse geocode coordinates.'
+                }
+            }
+        }
+
+        // 4. Success Return Envelope
+        return {
+            data: payload as GeocodingLocation[],
+            error: null
+        }
+
+    } catch (err) {
+        clearTimeout(timeoutId)
+
+        if (err instanceof Error && err.name === 'AbortError') {
+            // Don't report errors if the request was intentionally aborted by user typing new keys
+            if (externalSignal?.aborted) {
+                return { data: [], error: null }
+            }
+
+            return {
+                data: null,
+                error: {
+                    status: 408,
+                    message: 'Reverse geocode request timed out. Please check your network connection.',
                 },
             }
         }
