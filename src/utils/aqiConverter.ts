@@ -40,7 +40,10 @@ const EPA_BREAKPOINTS: AqiBreakPoint[] = [
  */
 export function getUsAqiKit(pm25: number): UsAqiResult {
     // Clamp negative numbers to 0, and extreme values to 500.4
-    const clampedPm25 = Math.min(Math.max(0, pm25), 500.4)
+    let clampedPm25 = Math.min(Math.max(0, pm25), 500.4)
+
+    // EPA guidance is to truncate to one decimal first
+    clampedPm25 = Number(clampedPm25.toFixed(1))
 
     // Find matching breakpoint range
     const range = EPA_BREAKPOINTS.find(

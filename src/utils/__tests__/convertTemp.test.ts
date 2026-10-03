@@ -18,4 +18,19 @@ describe('convertTemp', () => {
     expect(convertTemp(68, 'imperial', 'metric')).toBe(20)
     expect(convertTemp(100, 'imperial', 'metric')).toBe(38)
   })
+
+  it('should handle negative temperatures', () => {
+    expect(convertTemp(-10, 'metric', 'imperial')).toBe(14)
+    expect(convertTemp(0, 'imperial', 'metric')).toBe(-18)
+  })
+
+  it('should return -40 in both directions (the point where scales meet)', () => {
+    expect(convertTemp(-40, 'metric', 'imperial')).toBe(-40)
+    expect(convertTemp(-40, 'imperial', 'metric')).toBe(-40)
+  })
+
+  it('should round fractional results to the nearest integer', () => {
+    expect(convertTemp(21.5, 'metric', 'imperial')).toBe(71) // 70.7
+    expect(convertTemp(70.7, 'imperial', 'metric')).toBe(22) // 21.5
+  })
 })

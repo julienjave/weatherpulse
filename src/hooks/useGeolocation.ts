@@ -3,7 +3,7 @@ import { useState, useCallback } from "react"
 
 // === TYPES & INTERFACES ================================================================
 
-interface Coordinates {
+export interface Coordinates {
     lat: number
     lon: number
 }
@@ -87,11 +87,19 @@ export function useGeolocation() {
         })
     }, [])
 
-    // 3. RETURN HOOK INTERFACE
+    // 3. HANDLER: RESET
+    const handleClearGeolocation = useCallback(() => {
+        setCoordinates(null)
+        setIsLoading(false)
+        setError(null)
+    },[])
+
+    // 4. RETURN HOOK INTERFACE
     return {
         coordinates,
         isLoading,
         error,
-        getLocation
+        getLocation,
+        handleClearGeolocation
     }
 }

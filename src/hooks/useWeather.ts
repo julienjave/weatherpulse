@@ -105,7 +105,20 @@ export function useWeather() {
         }
     }, [fetchAllWeatherData, selectedCity, units])
 
-    // 6. CLEANUP ON UNMOUNT
+    // 6. HANDLER: RESET
+    const handleClearLocation = useCallback(() => {
+        //Abort any request still running
+        abortControllerRef.current?.abort()
+        // Rest state values
+        setSelectedCity(null)
+        setWeatherData(null)
+        setForecastData(null)
+        setAqiData(null)
+        setError(null)
+        setIsLoading(false)
+    }, [])
+
+    // 7. CLEANUP ON UNMOUNT
     useEffect(() => {
         return () => {
             if (abortControllerRef.current) {
@@ -114,7 +127,7 @@ export function useWeather() {
         }
     }, [])
 
-    // 7. RETURN STATE AND HANDLERS
+    // 8. RETURN STATE AND HANDLERS
     // Return state and handlers for UI components to consume
     return {
         weatherData,
@@ -126,5 +139,6 @@ export function useWeather() {
         error,
         handleSelectLocation,
         handleToggleUnits,
+        handleClearLocation
     }
 }

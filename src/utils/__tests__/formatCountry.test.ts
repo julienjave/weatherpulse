@@ -20,4 +20,16 @@ describe('formatCountryName', () => {
   it('should return raw uppercase code as fallback for invalid region codes', () => {
     expect(formatCountryName('XYZ')).toBe('XYZ')
   })
+
+  it('should uppercase invalid codes in the fallback', () => {
+    expect(formatCountryName('xyz')).toBe('XYZ')
+  })
+
+  it('should translate into the requested locale', () => {
+    expect(formatCountryName('DE', 'fr')).toBe('Allemagne')
+  })
+
+  it('should fall back to the uppercase code when the locale is invalid', () => {
+    expect(formatCountryName('fr', 'not a locale!')).toBe('FR')
+  })
 })

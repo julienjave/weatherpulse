@@ -29,6 +29,8 @@ interface SearchBarProps {
     onSelectLocation: (location: GeocodingLocation) => void
     // Function that triggers browser geolocation
     onUseMyLocation: () => void
+    // Function that resets state values
+    onClear: () => void
     // Boolean flag from useGeolocation to show a spinner on the GPS button (Optional)
     isGeoloading?: boolean
     // String error message if geolocation access fails (Optional)
@@ -41,12 +43,14 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = ({
     onSelectLocation,
     onUseMyLocation,
+    onClear,
     isGeoloading = false,
     geoError = null
 }) => {
     // 1. STATE VARIABLES
 
     const [searchMode, setSearchMode] = useState<SearchMode>('city')
+    const [selectedOption, setSelectedOption] = useState<GeocodingLocation | null>(null)
     const [latInput, setLatInput] = useState<string>('')
     const [lonInput, setLonInput] = useState<string>('')
     const [isReverseGeocoding, setIsReverseGeoCoding] = useState<boolean>(false)
@@ -55,7 +59,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     // 2. HOOKS
 
     const { 
-        searchTerm, 
+        searchTerm,
         handleInputChange, 
         options, 
         isSearching, 
@@ -124,7 +128,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         }
 
 
-    }, [latInput, lonInput])
+    }, [latInput, lonInput, onSelectLocation])
+
+    // Handler 3: Clear search fields
+    const handleClearSearch = useCallback(() => {
+        setLatInput('')
+        setLonInput('')
+        setCoordError(null)
+        // Reset the Autocomplete's selected value too, otherwise MUI restores
+        // the input text from it (onInputChange with reason 'reset')
+        setSelectedOption(null)
+        onClear()
+        handleInputChange('')
+    }, [handleInputChange, onClear])
 
     // 4. RENDER
 
@@ -133,43 +149,52 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <Paper elevation={3} sx={{ p: 2, borderRadius: 3, backdropFilter: 'blur(10px)' }}>
                 
                 {/* ROW 1: Header Controls: Search Mode Toggle & Location Button */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    {/* ToggleButtonGroup: City vs Coordinates */}
-                    <ToggleButtonGroup
-                        value={searchMode}
-                        exclusive
-                        size="small"
-                        onChange={handleModeChange}
-                        aria-label="search mode"
-                    >
-                        <ToggleButton value="city" aria-label="city search">
-                            <Search sx={{ mr: 0.5, fontSize: 18 }} />
-                            City
-                        </ToggleButton>
-                        <ToggleButton value="coords" aria-label="coordinates search">
-                            <PinDrop sx={{ mr: 0.5, fontSize: 18 }} />
-                            Coordinates
-                        </ToggleButton>
-                    </ToggleButtonGroup>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                        {/* ToggleButtonGroup: City vs Coordinates */}
+                        <ToggleButtonGroup
+                            value={searchMode}
+                            exclusive
+                            size="small"
+                            onChange={handleModeChange}
+                            aria-label="search mode"
+                        >
+                            <ToggleButton value="city" aria-label="city search">
+                                <Search sx={{ mr: 0.5, fontSize: 18 }} />
+                                City
+                            </ToggleButton>
+                            <ToggleButton value="coords" aria-label="coordinates search">
+                                <PinDrop sx={{ mr: 0.5, fontSize: 18 }} />
+                                Coordinates
+                            </ToggleButton>
+                        </ToggleButtonGroup>
 
-                    {/* Tooltip + IconButton (MyLocationIcon): Triggers onUseMyLocation */}
-                    <Tooltip title="Use current location">
-                        <span>
-                            <IconButton
-                                color="primary"
-                                onClick={onUseMyLocation}
-                                disabled={isGeoloading}
-                                aria-label="use my location"
-                                >
-                                {/*   If isGeoLoading is true, render CircularProgress instead of icon */}
-                                {isGeoloading ? (
-                                    <CircularProgress size={24} />
-                                ) : (
-                                    <MyLocation />
-                                )}
-                            </IconButton>
-                        </span>
-                    </Tooltip>
+                        {/* Tooltip + IconButton (MyLocationIcon): Triggers onUseMyLocation */}
+                        <Tooltip title="Use current location">
+                            <span>
+                                <IconButton
+                                    color="primary"
+                                    onClick={onUseMyLocation}
+                                    disabled={isGeoloading}
+                                    aria-label="use my location"
+                                    >
+                                    {/*   If isGeoLoading is true, render CircularProgress instead of icon */}
+                                    {isGeoloading ? (
+                                        <CircularProgress size={24} />
+                                    ) : (
+                                        <MyLocation />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </Box>
+                    <Button
+                        variant="contained"
+                        onClick={handleClearSearch}
+                        sx={{ whiteSpace: 'nowrap', px: 3, height: 40 }}
+                    >
+                        Clear
+                    </Button>
                 </Box>
 
                 {/* ROW 2A: Mode 1 - City Autocomplete Search */}
@@ -184,9 +209,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                             return `${option.name}${state}, ${country}`
                         }}
                         filterOptions={(x) => x} // Disable client-side filtering as API handles it
+                        value={selectedOption}
                         inputValue={searchTerm}
                         onInputChange={(_event, value) => handleInputChange(value)}
                         onChange={(_event, value) => {
+                            setSelectedOption(value)
                             if(value && typeof value !== 'string') {
                                 onSelectLocation(value)
                             }
@@ -267,20 +294,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                         onChange={(e) => setLatInput(e.target.value)}
                     />
                     <TextField
-                    label="Longitude (-180 to 180)"
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    type="number"
-                    slotProps={{ input: { inputProps: { step: 'any', min: -180, max: 180 } } }}
-                    value={lonInput}
-                    onChange={(e) => setLonInput(e.target.value)}
+                        label="Longitude (-180 to 180)"
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        type="number"
+                        slotProps={{ input: { inputProps: { step: 'any', min: -180, max: 180 } } }}
+                        value={lonInput}
+                        onChange={(e) => setLonInput(e.target.value)}
                     />
                     <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={isReverseGeocoding}
-                    sx={{ whiteSpace: 'nowrap', px: 3, height: 40 }}
+                        type="submit"
+                        variant="contained"
+                        disabled={isReverseGeocoding}
+                        sx={{ whiteSpace: 'nowrap', px: 3, height: 40 }}
                     >
                         {isReverseGeocoding ? (
                             <CircularProgress size={20} color="inherit" />
