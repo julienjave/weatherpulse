@@ -6,7 +6,7 @@ import type { TemperatureUnit } from "../types/weather"
 
 // === TYPES & INTERFACES ==================================================================
 
-interface WeatherHeadBarProps {
+export interface WeatherHeadBarProps {
     isFavorite: boolean
     onToggleFavorite: () => void
     units: TemperatureUnit

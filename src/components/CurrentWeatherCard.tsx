@@ -7,7 +7,6 @@ import { ForecastCard } from './ForecastCard'
 import type { 
     CurrentWeatherResponse,
     ForecastResponse,
-    AirQualityResponse,
     GeocodingLocation,
     TemperatureUnit
 } from '../types/weather'
@@ -18,14 +17,11 @@ import { getIconUrl } from '../utils/weatherIcons'
 
 // === TYPES & INTERFACES ==================================================================
 
-interface CurrentWeatherCardProps {
+export interface CurrentWeatherCardProps {
     weatherData: CurrentWeatherResponse
     forecastData: ForecastResponse | null
-    aqiData: AirQualityResponse | null
     selectedCity: GeocodingLocation
     units: TemperatureUnit
-    isWeatherLoading?: boolean
-    weatherError?: string | null
 }
 
 // === COMPONENT: CURRENTWEATHERCARD =======================================================

@@ -1,9 +1,8 @@
 import { useCallback } from 'react'
-import { Container, Box, Typography, Alert, CssBaseline } from '@mui/material'
+import { Container, Box, Typography, Alert } from '@mui/material'
 import { SearchBar } from './components/SearchBar'
-import { WeatherHeaderBar } from './components/WeatherHeaderBar'
 import { FavoritesBar } from './components/FavoritesBar'
-import { CurrentWeatherCard } from './components/CurrentWeatherCard'
+import { WeatherPanel } from './components/WeatherPanel'
 import { useWeather } from './hooks/useWeather'
 import { type Coordinates, useGeolocation } from './hooks/useGeolocation'
 import { getReverseGeocode } from './services/weatherApi'
@@ -17,7 +16,6 @@ function App() {
   const {
     weatherData,
     forecastData,
-    aqiData,
     selectedCity,
     units,
     isLoading: isWeatherLoading,
@@ -103,7 +101,7 @@ function App() {
           </Typography>
         </Box>
 
-        {/* SearchBar Component Preview */}
+        {/* SearchBar Component */}
         <SearchBar
           onSelectLocation={handleSelectLocation}
           onUseMyLocation={handleUseMyLocation}
@@ -112,6 +110,7 @@ function App() {
           geoError={geoError}
         />
 
+        {/* Favorites Bar Component */}
         <FavoritesBar
           favorites={favorites}
           selectedCity={selectedCity}
@@ -120,24 +119,16 @@ function App() {
         />
 
         {selectedCity && weatherData && (
-          <>
-            <WeatherHeaderBar 
-              isFavorite={isFavorite(selectedCity)}
-              onToggleFavorite={handleToggleFavorite}
-              isFavoritesFull={isFavoritesFull}
-              units={units}
-              onToggleUnit={handleToggleUnits}
-            />
-            <CurrentWeatherCard
-              weatherData={weatherData}
-              forecastData={forecastData}
-              aqiData={aqiData}
-              selectedCity={selectedCity}
-              units={units}
-              isWeatherLoading={isWeatherLoading}
-              weatherError={weatherError}
-            />
-          </>
+          <WeatherPanel
+            weatherData={weatherData}
+            forecastData={forecastData}
+            selectedCity={selectedCity}
+            units={units}
+            isFavorite={isFavorite(selectedCity)}
+            isFavoritesFull={isFavoritesFull}
+            onToggleFavorite={handleToggleFavorite}
+            onToggleUnit={handleToggleUnits}
+          />
         )}
 
         {isWeatherLoading && (
