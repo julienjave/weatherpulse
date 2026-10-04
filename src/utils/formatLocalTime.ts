@@ -4,12 +4,20 @@ type Format = 'full' | 'day-long' | 'day-short' | 'time'
  * Formats the date and time to the searched location local time
  * 
  * @param timezoneOffsetSeconds - Shift in seconds from UTC
+ * @param format - Formatting option
+ * @param dt - Optional: timestamp parameter
  * @returns Formatted date (e.g., "Thursday Oct 03, 4:12 PM" (full), "Thu 03" (day))
  */
-export function formatLocalTime(timezoneOffsetSeconds: number, format: Format = 'full'): string {
+export function formatLocalTime(
+    timezoneOffsetSeconds: number, 
+    format: Format = 'full',
+    dt?: number
+): string {
     // Get current UTC time in milliseconds
     const now = new Date()
-    const utcTimestamp = now.getTime() + now.getTimezoneOffset() * 60000
+    const utcTimestamp = dt 
+        ? dt * 1000 +  now.getTimezoneOffset() * 60000
+        : now.getTime() + now.getTimezoneOffset() * 60000
 
     // Add the city's UTC offset (in milliseconds)
     const targetTimestamp = utcTimestamp + timezoneOffsetSeconds * 1000

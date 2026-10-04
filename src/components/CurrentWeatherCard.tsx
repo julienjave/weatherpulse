@@ -3,6 +3,7 @@ import {
     Card,
     Typography
 } from '@mui/material'
+import { ForecastCard } from './ForecastCard'
 import type { 
     CurrentWeatherResponse,
     ForecastResponse,
@@ -11,6 +12,7 @@ import type {
     TemperatureUnit
 } from '../types/weather'
 import { formatLocalTime } from '../utils/formatLocalTime'
+import { type DailyForecastSummary, aggregateDailyForecast, getLocalDateKey } from '../utils/aggregateForecast'
 import { type WeatherThemeKit, getWeatherThemeKit } from '../utils/weatherThemes'
 import { getIconUrl } from '../utils/weatherIcons'
 
@@ -28,28 +30,37 @@ interface CurrentWeatherCardProps {
 
 // === COMPONENT: CURRENTWEATHERCARD =======================================================
 
-export const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
+export function CurrentWeatherCard ({
     weatherData,
     forecastData,
-    aqiData,
     selectedCity,
     units,
-    isWeatherLoading,
-    weatherError
-}) => {
+}: CurrentWeatherCardProps) {
 
     // 1. VARIABLES
     const currentDate: string = formatLocalTime(weatherData.timezone, 'day-long')
     const currentTime: string = formatLocalTime(weatherData.timezone, 'time')
     const theme: WeatherThemeKit = getWeatherThemeKit(weatherData.weather[0].id, weatherData.weather[0].icon)
+    let fourDayForecast: DailyForecastSummary[] | null = null
 
-    // 2. HOOKS
+    // Pre-process forecast data
+    if(forecastData) {
+        const forecastDailySummaries: DailyForecastSummary[] = aggregateDailyForecast(
+            forecastData.list,
+            forecastData.city.timezone
+        )
 
-    // 3. HANDLERS
+        // Remove the current day to avoid redundancy
+        const todayKey: string = getLocalDateKey(weatherData.dt, weatherData.timezone)
+        // Filter out today by date key match, then cap at 4 days
+        fourDayForecast = forecastDailySummaries
+            .filter((day) => day.dateKey !== todayKey)
+            .slice(0,4)
+    }
 
-    // 4. RENDER
+    // 2. RENDER
     return (
-        <Card>
+        <Card sx={{ p: 1 }}>
             
             {/* DATE & LOCATION */}
             <Box component="article" id='current-date'>
@@ -112,6 +123,9 @@ export const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
             )}
 
             {/* 5-DAY FORECAST */}
+            {fourDayForecast && (
+                <ForecastCard forecastList={fourDayForecast} units={units}/>
+            )}
 
         </Card>
     )

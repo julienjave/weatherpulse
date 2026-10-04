@@ -114,7 +114,7 @@ export interface ForecastItem {
   sys: {
     pod: string // "d" for day, "n" for night
   },
-  dt_txt: string, // Fixed typo: 'dt_txt' (not 'dt_text')
+  dt_txt: string, 
 }
 
 export interface ForecastResponse {
