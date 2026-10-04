@@ -129,7 +129,7 @@ export function getWeatherIcon(conditionId: number, iconCode?: string): string {
     if(conditionId === 802) return isNight ? 'cloudy-night.svg' : 'cloudy-day.svg'
 
     // 4. Overcast / Cloudy
-    if(conditionId>=803 && conditionId<810) return isNight ? 'clear-night.svg' : 'clear-day.svg'
+    if(conditionId>=803 && conditionId<810) return isNight ? 'overcast-night.svg' : 'overcast-day.svg'
 
     // 5. Drizzle
     if(conditionId>=300 && conditionId<400) return isNight ? 'drizzle-night.svg' : 'drizzle-day.svg'

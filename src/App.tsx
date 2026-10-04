@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { Container, Box, Typography, Alert, CssBaseline } from '@mui/material'
 import { SearchBar } from './components/SearchBar'
+import { CurrentWeatherCard } from './components/CurrentWeatherCard'
 import { useWeather } from './hooks/useWeather'
 import { type Coordinates, useGeolocation } from './hooks/useGeolocation'
 import { getReverseGeocode } from './services/weatherApi'
@@ -114,6 +115,18 @@ function App() {
               Lat: {selectedCity.lat}, Lon: {selectedCity.lon}
             </Typography>
           </Box>
+        )}
+
+        {selectedCity && weatherData && (
+          <CurrentWeatherCard
+            weatherData={weatherData}
+            forecastData={forecastData}
+            aqiData={aqiData}
+            selectedCity={selectedCity}
+            units={units}
+            isWeatherLoading={isWeatherLoading}
+            weatherError={weatherError}
+          />
         )}
 
         {isWeatherLoading && (
