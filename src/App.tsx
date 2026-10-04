@@ -1,11 +1,13 @@
 import { useCallback } from 'react'
 import { Container, Box, Typography, Alert, CssBaseline } from '@mui/material'
 import { SearchBar } from './components/SearchBar'
+import { WeatherHeaderBar } from './components/WeatherHeaderBar'
+import { FavoritesBar } from './components/FavoritesBar'
 import { CurrentWeatherCard } from './components/CurrentWeatherCard'
 import { useWeather } from './hooks/useWeather'
 import { type Coordinates, useGeolocation } from './hooks/useGeolocation'
 import { getReverseGeocode } from './services/weatherApi'
-import type { GeocodingLocation } from './types/weather'
+import { useFavorites } from './hooks/useFavorites'
 import './App.css'
 
 function App() {
@@ -33,7 +35,9 @@ function App() {
     handleClearGeolocation
   } = useGeolocation()
 
-  
+  const { favorites, isFull: isFavoritesFull, isFavorite, toggleFavorite, removeFavorite } = useFavorites()
+
+
   // 2. --- HANDLERS ---
   
   const handleUseMyLocation = useCallback(async () => {
@@ -83,6 +87,10 @@ function App() {
     handleClearGeolocation()
   },[handleClearLocation, handleClearGeolocation])
 
+  const handleToggleFavorite = useCallback(() => {
+    if (selectedCity) toggleFavorite(selectedCity)
+  },[selectedCity, toggleFavorite])
+
   return (
     <>
       <Container maxWidth="md" sx={{ py: 4, backgroundColor: "#f88de1" }}>
@@ -104,29 +112,32 @@ function App() {
           geoError={geoError}
         />
 
-        {/* Visual Inspection Feedback Card */}
-        {selectedCity && (
-          <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="h6">Selected Location:</Typography>
-            <Typography variant="body1">
-              {selectedCity.name} {selectedCity.state ? `(${selectedCity.state})` : ''} - {selectedCity.country}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Lat: {selectedCity.lat}, Lon: {selectedCity.lon}
-            </Typography>
-          </Box>
-        )}
+        <FavoritesBar
+          favorites={favorites}
+          selectedCity={selectedCity}
+          onSelect={handleSelectLocation}
+          onDelete={removeFavorite}
+        />
 
         {selectedCity && weatherData && (
-          <CurrentWeatherCard
-            weatherData={weatherData}
-            forecastData={forecastData}
-            aqiData={aqiData}
-            selectedCity={selectedCity}
-            units={units}
-            isWeatherLoading={isWeatherLoading}
-            weatherError={weatherError}
-          />
+          <>
+            <WeatherHeaderBar 
+              isFavorite={isFavorite(selectedCity)}
+              onToggleFavorite={handleToggleFavorite}
+              isFavoritesFull={isFavoritesFull}
+              units={units}
+              onToggleUnit={handleToggleUnits}
+            />
+            <CurrentWeatherCard
+              weatherData={weatherData}
+              forecastData={forecastData}
+              aqiData={aqiData}
+              selectedCity={selectedCity}
+              units={units}
+              isWeatherLoading={isWeatherLoading}
+              weatherError={weatherError}
+            />
+          </>
         )}
 
         {isWeatherLoading && (
@@ -141,13 +152,6 @@ function App() {
           </Alert>
         )}
 
-        {weatherData && (
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              Current Temp in {weatherData.name}: {Math.round(weatherData.main.temp)}°
-            </Typography>
-          </Box>
-        )}
       </Container>
     </>
   )
