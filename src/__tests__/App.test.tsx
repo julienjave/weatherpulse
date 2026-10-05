@@ -118,7 +118,7 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'WeatherPulse' })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /search city/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /add to favorites/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('navigation', { name: 'Favorite cities' })).not.toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Favorite cities' })).toHaveTextContent('No favorites yet')
   })
 
   describe('use my location', () => {

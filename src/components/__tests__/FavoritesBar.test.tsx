@@ -28,10 +28,18 @@ describe('FavoritesBar Component', () => {
     vi.clearAllMocks()
   })
 
-  it('renders nothing when there are no favorites', () => {
-    const { container } = renderFavoritesBar({ favorites: [] })
+  it('keeps the bar visible with a placeholder when there are no favorites', () => {
+    renderFavoritesBar({ favorites: [] })
 
-    expect(container).toBeEmptyDOMElement()
+    const favoritesBar = screen.getByRole('navigation', { name: 'Favorite cities' })
+    expect(favoritesBar).toHaveTextContent('No favorites yet')
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  it('hides the placeholder once there are favorites', () => {
+    renderFavoritesBar()
+
+    expect(screen.queryByText('No favorites yet')).not.toBeInTheDocument()
   })
 
   it('renders one chip per favorite city with its country code', () => {

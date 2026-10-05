@@ -11,7 +11,7 @@ import { isSameLocation } from '../utils/compareCities'
  */
 
 export const FAVORITES_STORAGE_KEY = 'favorites'
-export const MAX_FAVORITES = 5
+export const MAX_FAVORITES = 3
 
 export function useFavorites() {
     // 1. PERSISTED STATE
