@@ -3,6 +3,7 @@ import { type WeatherHeadBarProps, WeatherHeaderBar } from "./WeatherHeaderBar"
 import { type CurrentWeatherCardProps, CurrentWeatherCard } from "./CurrentWeatherCard"
 import type { AirQualityResponse } from "../types/weather"
 import { WeatherMetricsCard } from "./WeatherMetricsCard"
+import { TemperatureTrendsCard } from "./TemperatureTrendsCard"
 import { getUsAqiKit } from "../utils/aqiConverter"
 
 // === TYPES & INTERFACES ==================================================================
@@ -25,7 +26,7 @@ export function WeatherPanel({
     onToggleUnit
 }: WeatherPanelProps) {
     // 1. VARIABLES
-    const aqiKit = aqiData ? getUsAqiKit(aqiData.list[0].components.pm2_5) : null
+    const aqiKit = aqiData ? getUsAqiKit(aqiData?.list[0].components.pm2_5) : null
 
     // 2. RENDER
     return (
@@ -55,6 +56,12 @@ export function WeatherPanel({
                 humidity={weatherData.main.humidity}
                 wind={weatherData.wind.speed}
                 aqiData={aqiKit}
+                units={units}
+            />
+
+            {/* TEMPERATURE TRENDS CARD */}
+            <TemperatureTrendsCard
+                forecastData={forecastData}
                 units={units}
             />
         </Box>
