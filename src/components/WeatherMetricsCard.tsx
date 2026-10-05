@@ -11,8 +11,8 @@ import type { WeatherThemeKit } from "../utils/weatherThemes"
 // === TYPES & INTERFACES ==================================================================
 
 interface WeatherMetricsCardProps {
-    humidity: Number
-    wind: Number 
+    humidity: number
+    wind: number 
     aqiData: UsAqiResult | null
     theme: WeatherThemeKit
     units: TemperatureUnit
@@ -89,7 +89,7 @@ export function WeatherMetricsCard({
                             px: 1,
                             py: 0.5
                         }}>
-                            <Typography sx={{ color: `${aqiData}` }}>
+                            <Typography sx={{ color: aqiData.color }}>
                                 {`${aqiData.aqi} - ${aqiData.label}`}
                             </Typography>
                         </Box>

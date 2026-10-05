@@ -32,7 +32,9 @@ export function WeatherPanel({
     onToggleUnit
 }: WeatherPanelProps) {
     // 1. VARIABLES
-    const aqiKit = aqiData ? getUsAqiKit(aqiData?.list[0].components.pm2_5) : null
+    // An air quality response can come back with an empty list: show the placeholder, not a fake reading
+    const pm25 = aqiData?.list[0]?.components.pm2_5
+    const aqiKit = pm25 !== undefined ? getUsAqiKit(pm25) : null
     let fourDayForecast: DailyForecastSummary[] | null = null
     const theme: WeatherThemeKit = getWeatherThemeKit(weatherData.weather[0].id, weatherData.weather[0].icon)
     

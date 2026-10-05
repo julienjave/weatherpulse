@@ -186,6 +186,17 @@ describe('useCitySearch', () => {
     expect(result.current.options).toEqual(paris)
   })
 
+  it('should set isSearching to true during the debounce delay, before the request starts', () => {
+    const { result } = renderHook(() => useCitySearch())
+
+    act(() => {
+      result.current.handleInputChange('Paris')
+    })
+
+    expect(result.current.isSearching).toBe(true)
+    expect(weatherApi.searchCityByName).not.toHaveBeenCalled()
+  })
+
   it('should cancel a pending debounced search when the input is cleared', async () => {
     const { result } = renderHook(() => useCitySearch())
 
@@ -203,6 +214,7 @@ describe('useCitySearch', () => {
 
     expect(weatherApi.searchCityByName).not.toHaveBeenCalled()
     expect(result.current.searchTerm).toBe('')
+    expect(result.current.isSearching).toBe(false)
   })
 
   it('should abort an in-flight request and ignore its result when the input is cleared', async () => {

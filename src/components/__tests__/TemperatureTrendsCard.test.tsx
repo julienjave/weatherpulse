@@ -26,16 +26,24 @@ const FORECAST: ForecastResponse = {
 
 describe('TemperatureTrendsCard Component', () => {
   it('shows a fallback message when there is no forecast data', () => {
-    render(<TemperatureTrendsCard forecastData={null} units="metric" />)
+    render(<TemperatureTrendsCard forecastData={null} isThemeDark={false} units="metric" />)
 
     expect(screen.getByRole('heading', { name: 'Next 24 Hours' })).toBeInTheDocument()
     expect(screen.getByText(/No Forecast Data/)).toBeInTheDocument()
   })
 
   it('renders the chart container instead of the fallback when data is present', () => {
-    render(<TemperatureTrendsCard forecastData={FORECAST} units="metric" />)
+    render(<TemperatureTrendsCard forecastData={FORECAST} isThemeDark={false} units="metric" />)
 
     expect(screen.queryByText(/No Forecast Data/)).not.toBeInTheDocument()
     expect(document.querySelector('.recharts-responsive-container')).toBeInTheDocument()
+  })
+
+  it('switches the title to white text on dark weather themes', () => {
+    const { rerender } = render(<TemperatureTrendsCard forecastData={FORECAST} isThemeDark={false} units="metric" />)
+    expect(screen.getByRole('heading', { name: 'Next 24 Hours' })).toHaveStyle({ color: 'rgb(0, 0, 0)' })
+
+    rerender(<TemperatureTrendsCard forecastData={FORECAST} isThemeDark={true} units="metric" />)
+    expect(screen.getByRole('heading', { name: 'Next 24 Hours' })).toHaveStyle({ color: 'rgb(255, 255, 255)' })
   })
 })

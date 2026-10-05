@@ -1,11 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { NotificationToast } from '../NotificationToast'
 import type { Notification } from '../../hooks/useNotification'
 
 describe('NotificationToast Component', () => {
   const notification: Notification = { id: 1, message: 'City not found.', severity: 'error', open: true }
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
 
   it('renders nothing when there is no notification', () => {
     const { container } = render(<NotificationToast notification={null} onClose={vi.fn()} />)
@@ -37,6 +41,5 @@ describe('NotificationToast Component', () => {
     vi.advanceTimersByTime(3000)
 
     expect(onClose).toHaveBeenCalledTimes(1)
-    vi.useRealTimers()
   })
 })

@@ -66,10 +66,9 @@ describe('aqiConverter (getUsAqiKit)', () => {
     expect(getUsAqiKit(10_000).aqi).toBe(500)
   })
 
-  // KNOWN BUG: OpenWeatherMap returns PM2.5 with 2 decimals (e.g. 12.05), which falls in the
-  // gap between breakpoints (12.0 / 12.1). `find` then misses and the code defaults to
-  // "Hazardous". EPA guidance is to truncate PM2.5 to 1 decimal before lookup.
-  // Remove `.fails` once getUsAqiKit is fixed.
+  // Regression: OpenWeatherMap returns PM2.5 with 2 decimals (e.g. 12.05), which used to fall in
+  // the gap between breakpoints (12.0 / 12.1), miss every range and default to "Hazardous".
+  // getUsAqiKit now reduces the value to 1 decimal before the lookup.
   it.each([12.05, 35.45, 55.45, 150.45, 250.45])(
     'should not classify in-between value %f as Hazardous',
     (pm25) => {

@@ -22,12 +22,15 @@ describe('SearchBar + useCitySearch integration', () => {
     vi.mocked(weatherApi.searchCityByName).mockResolvedValue({ data: [paris], error: null })
   })
 
+  const mockOnError = vi.fn()
+
   const renderSearchBar = () =>
     render(
       <SearchBar
         onSelectLocation={mockOnSelectLocation}
         onUseMyLocation={vi.fn()}
         onClear={mockOnClear}
+        onError={mockOnError}
       />
     )
 
@@ -67,5 +70,35 @@ describe('SearchBar + useCitySearch integration', () => {
     await user.tab()
 
     expect(input).toHaveValue('')
+  })
+
+  it('shows loading instead of "No cities found" while the search is debounced', async () => {
+    const user = userEvent.setup()
+    vi.mocked(weatherApi.searchCityByName).mockResolvedValue({ data: [], error: null })
+    renderSearchBar()
+
+    await user.type(screen.getByRole('combobox', { name: /search city/i }), 'Xyzzyq')
+
+    // Still inside the 500ms debounce window: no request yet, no premature empty-result message
+    expect(weatherApi.searchCityByName).not.toHaveBeenCalled()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
+    expect(screen.queryByText(/No cities found/)).not.toBeInTheDocument()
+
+    expect(await screen.findByText('No cities found for "Xyzzyq"', {}, { timeout: 2000 })).toBeInTheDocument()
+  })
+
+  it('reports a failed city search through onError', async () => {
+    const user = userEvent.setup()
+    vi.mocked(weatherApi.searchCityByName).mockResolvedValue({
+      data: null,
+      error: { status: 500, message: 'Failed to fetch city recommendations.' },
+    })
+    renderSearchBar()
+
+    await user.type(screen.getByRole('combobox', { name: /search city/i }), 'Par')
+
+    await waitFor(() => {
+      expect(mockOnError).toHaveBeenCalledWith('Failed to fetch city recommendations.')
+    }, { timeout: 2000 })
   })
 })

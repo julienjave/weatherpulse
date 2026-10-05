@@ -138,12 +138,10 @@ describe('weatherThemes', () => {
       expect(getWeatherIcon(900, '01n')).toBe('clear-night.svg')
     })
 
-    // KNOWN BUG: 803 (broken clouds) and 804 (overcast) currently return clear-*.svg.
-    // extra/icons.md maps OWM icons 03x/04x to cloudy-*.svg.
-    // Remove `.fails` once getWeatherIcon is fixed.
-    it.fails.each([803, 804])('should map code %i to a cloudy icon', (code) => {
-      expect(getWeatherIcon(code, '04d')).toBe('cloudy-day.svg')
-      expect(getWeatherIcon(code, '04n')).toBe('cloudy-night.svg')
+    // Regression: 803 (broken clouds) and 804 (overcast) used to fall through to clear-*.svg
+    it.each([803, 804])('should map code %i to an overcast icon', (code) => {
+      expect(getWeatherIcon(code, '04d')).toBe('overcast-day.svg')
+      expect(getWeatherIcon(code, '04n')).toBe('overcast-night.svg')
     })
   })
 
