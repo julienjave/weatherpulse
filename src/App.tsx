@@ -1,12 +1,15 @@
-import { useCallback } from 'react'
-import { Container, Box, Typography, Alert } from '@mui/material'
+import { useCallback, useEffect } from 'react'
+import { Container, Box, Typography } from '@mui/material'
 import { SearchBar } from './components/SearchBar'
 import { FavoritesBar } from './components/FavoritesBar'
 import { WeatherPanel } from './components/WeatherPanel'
+import { WeatherPanelSkeleton } from './components/WeatherPanelSkeleton'
+import { NotificationToast } from './components/NotificationToast'
 import { useWeather } from './hooks/useWeather'
 import { type Coordinates, useGeolocation } from './hooks/useGeolocation'
 import { getReverseGeocode } from './services/weatherApi'
 import { useFavorites } from './hooks/useFavorites'
+import { useNotification } from './hooks/useNotification'
 import './App.css'
 
 function App() {
@@ -35,8 +38,23 @@ function App() {
 
   const { favorites, isFull: isFavoritesFull, isFavorite, toggleFavorite, removeFavorite } = useFavorites()
 
+  const { notification, notify, dismiss: dismissNotification } = useNotification()
 
-  // 2. --- HANDLERS ---
+
+  // 2. --- ERROR TOASTS ---
+
+  // Weather API / network failures
+  useEffect(() => {
+    if (weatherError) notify(weatherError, 'error')
+  }, [weatherError, notify])
+
+  // Geolocation permission / availability problems
+  useEffect(() => {
+    if (geoError) notify(geoError, 'warning')
+  }, [geoError, notify])
+
+
+  // 3. --- HANDLERS ---
   
   const handleUseMyLocation = useCallback(async () => {
     try {
@@ -83,7 +101,8 @@ function App() {
   const handleClearSearch = useCallback(() => {
     handleClearLocation()
     handleClearGeolocation()
-  },[handleClearLocation, handleClearGeolocation])
+    dismissNotification()
+  },[handleClearLocation, handleClearGeolocation, dismissNotification])
 
   const handleToggleFavorite = useCallback(() => {
     if (selectedCity) toggleFavorite(selectedCity)
@@ -108,7 +127,7 @@ function App() {
           onUseMyLocation={handleUseMyLocation}
           onClear={handleClearSearch}
           isGeoloading={isGeoloading}
-          geoError={geoError}
+          onError={notify}
         />
 
         {/* Favorites Bar Component */}
@@ -119,7 +138,9 @@ function App() {
           onDelete={removeFavorite}
         />
 
-        {/* Weather Panel */}
+        {/* Weather Panel (skeleton while a new city's data is loading) */}
+        {selectedCity && !weatherData && isWeatherLoading && <WeatherPanelSkeleton />}
+
         {selectedCity && weatherData && (
           <WeatherPanel
             weatherData={weatherData}
@@ -134,17 +155,8 @@ function App() {
           />
         )}
 
-        {isWeatherLoading && (
-          <Typography align="center" sx={{ mt: 2 }}>
-            Fetching weather data...
-          </Typography>
-        )}
-
-        {weatherError && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {weatherError}
-          </Alert>
-        )}
+        {/* Error Toasts */}
+        <NotificationToast notification={notification} onClose={dismissNotification} />
 
       </Container>
     </>

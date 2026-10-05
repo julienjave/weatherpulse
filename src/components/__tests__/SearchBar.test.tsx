@@ -124,17 +124,24 @@ describe('SearchBar Component', () => {
       expect(mockOnUseMyLocation).toHaveBeenCalledTimes(1)
     })
 
-    it('renders searchError alert when custom search hook returns error', () => {
+    it('forwards searchError to onError instead of rendering it inline', () => {
+      const mockOnError = vi.fn()
       mockCitySearch({ searchTerm: 'BadQuery', searchError: 'Failed to fetch city recommendations.' })
-      renderSearchBar()
+      renderSearchBar({ onError: mockOnError })
 
-      expect(screen.getByText('Failed to fetch city recommendations.')).toBeInTheDocument()
+      expect(mockOnError).toHaveBeenCalledWith('Failed to fetch city recommendations.')
+      expect(screen.queryByText('Failed to fetch city recommendations.')).not.toBeInTheDocument()
     })
 
-    it('renders geoError warning alert when passed via props', () => {
-      renderSearchBar({ geoError: 'User denied Geolocation permission' })
+    it('shows a "no cities found" message when the search returns no results', async () => {
+      const user = userEvent.setup()
+      mockCitySearch({ searchTerm: 'Xyzzyq', options: [] })
+      renderSearchBar()
 
-      expect(screen.getByText('User denied Geolocation permission')).toBeInTheDocument()
+      await user.click(screen.getByRole('combobox', { name: /search city/i }))
+      await user.keyboard('{ArrowDown}')
+
+      expect(await screen.findByText('No cities found for "Xyzzyq"')).toBeInTheDocument()
     })
   })
 

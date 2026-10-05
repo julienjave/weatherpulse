@@ -265,6 +265,30 @@ describe('useWeather', () => {
     expect(result.current.weatherData).toEqual({ name: 'Sydney', main: { temp: 22 } })
   })
 
+  it('should clear the previous city data as soon as a new location is selected', async () => {
+    mockAllSuccess()
+    const { result } = renderHook(() => useWeather())
+
+    await act(async () => {
+      result.current.handleSelectLocation(mockLocation)
+    })
+    expect(result.current.weatherData).not.toBeNull()
+
+    // Second request never settles, so we observe the in-between state
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockReturnValueOnce(new Promise(() => {}))
+    vi.mocked(weatherApi.fetch5DayForecastByCoords).mockReturnValueOnce(new Promise(() => {}))
+    vi.mocked(weatherApi.fetchAirQualityByCoords).mockReturnValueOnce(new Promise(() => {}))
+
+    act(() => {
+      result.current.handleSelectLocation({ name: 'Paris', lat: 48.8566, lon: 2.3522, country: 'FR' })
+    })
+
+    expect(result.current.weatherData).toBeNull()
+    expect(result.current.forecastData).toBeNull()
+    expect(result.current.aqiData).toBeNull()
+    expect(result.current.isLoading).toBe(true)
+  })
+
   it('should abort the previous request and ignore its result when a new location is selected', async () => {
     mockAllSuccess()
     const firstRequest = deferred<CurrentWeatherResult>()

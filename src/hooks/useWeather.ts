@@ -87,7 +87,13 @@ export function useWeather() {
         // A. Save location to state
         setSelectedCity(location)
 
-        // B. Trigger fetch requests
+        // B. Drop the previous city's data so it's never shown under the new city's name
+        // (the UI shows a skeleton until the new data arrives)
+        setWeatherData(null)
+        setForecastData(null)
+        setAqiData(null)
+
+        // C. Trigger fetch requests
         fetchAllWeatherData(location.lat, location.lon, units)
     }, [fetchAllWeatherData, units])
 

@@ -96,6 +96,9 @@ export function useCitySearch() {
             return
         }
 
+        // Show the spinner during the debounce delay too, so "No cities found" isn't flashed early
+        setIsSearching(true)
+
         // Pass non-empty query to debouncer
         debouncedSearch(trimmed) // Delay actual API call (performSearch()) by 500ms (using debounce())
     }, [debouncedSearch])

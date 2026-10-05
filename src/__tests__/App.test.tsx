@@ -170,7 +170,9 @@ describe('App', () => {
 
       await user.click(screen.getByRole('button', { name: /^clear$/i }))
 
-      expect(screen.queryByText('Server error')).not.toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.queryByText('Server error')).not.toBeInTheDocument()
+      })
     })
   })
 })

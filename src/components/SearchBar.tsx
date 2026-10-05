@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import {
     Box,
     Paper,
@@ -33,8 +33,8 @@ interface SearchBarProps {
     onClear: () => void
     // Boolean flag from useGeolocation to show a spinner on the GPS button (Optional)
     isGeoloading?: boolean
-    // String error message if geolocation access fails (Optional)
-    geoError?: string | null
+    // Function that reports city search failures to the toast notifications (Optional)
+    onError?: (message: string) => void
 }
 
 
@@ -45,7 +45,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     onUseMyLocation,
     onClear,
     isGeoloading = false,
-    geoError = null
+    onError
 }) => {
     // 1. STATE VARIABLES
 
@@ -65,6 +65,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         isSearching, 
         searchError 
     } = useCitySearch()
+
+    // Forward search failures (network, API) to the toast notifications
+    useEffect(() => {
+        if (searchError) onError?.(searchError)
+    }, [searchError, onError])
 
     // 3. HANDLERS
 
@@ -202,6 +207,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     <Autocomplete
                         options={options}
                         loading={isSearching}
+                        noOptionsText={searchTerm.trim().length >= 2
+                            ? `No cities found for "${searchTerm.trim()}"`
+                            : 'Type at least 2 characters'}
                         getOptionLabel={(option) => {
                             if(typeof option === 'string') return option
                             const country = formatCountryName(option.country)
@@ -318,18 +326,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 </Box>
                 )}
 
-                {/* ROW 3: Error Alerts Feedback */}
-                <Collapse in={Boolean(searchError || geoError || coordError)}>
-                    {searchError && (
-                        <Alert severity="error" sx={{ mt: 1 }}>
-                            {searchError}
-                        </Alert>
-                    )}
-                    {geoError && (
-                        <Alert severity="warning" sx={{ mt: 1 }}>
-                            {geoError}
-                        </Alert>
-                    )}
+                {/* ROW 3: Coordinate validation feedback (stays inline, next to the fields it refers to) */}
+                <Collapse in={Boolean(coordError)}>
                     {coordError && (
                         <Alert severity="error" sx={{ mt: 1 }}>
                             {coordError}
