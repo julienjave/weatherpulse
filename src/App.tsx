@@ -16,6 +16,7 @@ function App() {
   const {
     weatherData,
     forecastData,
+    aqiData,
     selectedCity,
     units,
     isLoading: isWeatherLoading,
@@ -92,6 +93,7 @@ function App() {
   return (
     <>
       <Container maxWidth="md" sx={{ py: 4, backgroundColor: "#f88de1" }}>
+        {/* Header */}
         <Box component="header" sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
             WeatherPulse
@@ -118,10 +120,12 @@ function App() {
           onDelete={removeFavorite}
         />
 
+        {/* Weather Panel */}
         {selectedCity && weatherData && (
           <WeatherPanel
             weatherData={weatherData}
             forecastData={forecastData}
+            aqiData={aqiData}
             selectedCity={selectedCity}
             units={units}
             isFavorite={isFavorite(selectedCity)}
