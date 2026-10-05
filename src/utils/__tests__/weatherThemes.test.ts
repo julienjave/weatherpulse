@@ -57,7 +57,9 @@ describe('weatherThemes', () => {
       [622, 'snow'],
       [701, 'atmosphere'],
       [781, 'atmosphere'],
-      [801, 'clouds'],
+      [801, 'partly-cloudy'],
+      [802, 'partly-cloudy'],
+      [803, 'clouds'],
       [804, 'clouds'],
     ])('should map code %i to the %s theme', (code, expectedKey) => {
       expect(getWeatherTheme(code, '01d').key).toBe(expectedKey)
@@ -66,6 +68,11 @@ describe('weatherThemes', () => {
     it('should ignore day/night for non-clear conditions', () => {
       expect(getWeatherTheme(502, '10n').key).toBe('rain')
       expect(getWeatherTheme(804, '04n').key).toBe('clouds')
+    })
+
+    it('should use the dark clouds theme for few/scattered clouds at night', () => {
+      expect(getWeatherTheme(801, '02n').key).toBe('clouds')
+      expect(getWeatherTheme(802, '03n').key).toBe('clouds')
     })
 
     it('should default to day when no icon code is provided', () => {

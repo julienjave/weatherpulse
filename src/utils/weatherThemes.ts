@@ -8,6 +8,7 @@ export type WeatherThemeKey =
     | 'atmosphere'
     | 'clear-day'
     | 'clear-night'
+    | 'partly-cloudy'
     | 'clouds'
 
 export interface WeatherTheme {
@@ -27,22 +28,27 @@ export interface WeatherThemeKit {
 const THEMES: Record<WeatherThemeKey, WeatherTheme> = {
     'clear-day': {
         key: 'clear-day',
-        gradient: 'linear-gradient(135deg, #2980b9 0%, #6dd5fa 50%, #ffffff 100%)',
+        gradient: 'linear-gradient(135deg, #419cd8 0%, #6dd5fa 50%, #ffffff 100%)',
         isDark: false
     },
     'clear-night': {
         key: 'clear-night',
-        gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+        gradient: 'linear-gradient(135deg, #151941 0%, #292657 50%, #192066 100%)',
         isDark: true,
+    },
+    'partly-cloudy': {
+        key: 'partly-cloudy',
+        gradient: 'linear-gradient(135deg, #6a9fd8 0%, #b8cfe4 55%, #e6edf3 100%)',
+        isDark: false,
     },
     clouds: {
         key: 'clouds',
-        gradient: 'linear-gradient(135deg, #606c88 0%, #3f4c6b 100%)',
-        isDark: true,
+        gradient: 'linear-gradient(135deg, #8c8f96 0%, #aab3c9 100%)',
+        isDark: false,
     },
     rain: {
         key: 'rain',
-        gradient: 'linear-gradient(135deg, #373b44 0%, #4286f4 100%)',
+        gradient: 'linear-gradient(135deg, #6c7791 0%, #5d769d 100%)',
         isDark: true,
     },
     drizzle: {
@@ -99,8 +105,11 @@ export function getWeatherTheme(conditionId: number, iconCode?: string): Weather
     // 6. Clear (800)
     if(conditionId === 800) return isNight ? THEMES["clear-night"] : THEMES["clear-day"]
 
-    // 7. Clouds (80x)
-    if(conditionId>800 && conditionId<810) return THEMES.clouds
+    // 7. Few / Scattered Clouds (801-802) - mostly sunny by day, so keep it light
+    if(conditionId === 801 || conditionId === 802) return isNight ? THEMES.clouds : THEMES['partly-cloudy']
+
+    // 8. Broken Clouds / Overcast (803+)
+    if(conditionId>802 && conditionId<810) return THEMES.clouds
 
     // Default fallback
     return isNight ? THEMES["clear-night"] : THEMES["clear-day"] 

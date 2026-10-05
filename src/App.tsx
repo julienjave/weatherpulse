@@ -27,7 +27,6 @@ function App() {
   } = useWeather()
 
   const {
-    coordinates,
     isLoading: isGeoloading,
     error: geoError,
     getLocation,

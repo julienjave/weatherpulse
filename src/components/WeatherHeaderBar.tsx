@@ -42,15 +42,15 @@ export function WeatherHeaderBar({
             {/* ADD TO FAVORITES BUTTON */}
             <Tooltip title={favoriteTooltip}>
                 {/* span wrapper: MUI Tooltip needs an element that receives events, even when the button is disabled */}
-                <span>
+                <Paper elevation={3} sx={{ borderRadius: '20px' }}>
                     <IconButton
                         onClick={onToggleFavorite}
                         disabled={isAddDisabled}
                         aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                     >
-                        {isFavorite ? (<StarIcon />) : (<StarBorderIcon />)}
+                        {isFavorite ? (<StarIcon sx={{ fill: '#faac1b' }} />) : (<StarBorderIcon sx={{ fill: '#faac1b' }} />)}
                     </IconButton>
-                </span>
+                </Paper>
             </Tooltip>
 
             {/* UNITS SWITCH */}

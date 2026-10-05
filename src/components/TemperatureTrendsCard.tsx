@@ -11,12 +11,14 @@ import {
 } from "recharts"
 import type { ForecastResponse, TemperatureUnit } from "../types/weather"
 import { type HourlyTrendPoint, getHourlyTrend } from "../utils/hourlyForecast"
+import { glassSx } from '../utils/glassStyles'
 
 
 // === TYPES & INTERFACES ==================================================================
 
 interface TemperatureTrendsCardProps {
     forecastData: ForecastResponse | null
+    isThemeDark: boolean
     units: TemperatureUnit
 }
 
@@ -56,6 +58,7 @@ function TrendTooltip({
 
 export function TemperatureTrendsCard({
     forecastData,
+    isThemeDark,
     units
 }: TemperatureTrendsCardProps) {
     // 1. VARIABLES
@@ -65,13 +68,19 @@ export function TemperatureTrendsCard({
         ? getHourlyTrend(forecastData.list, forecastData.city.timezone)
         : []
 
-    const seriesColor = theme.palette.primary.main
-    const axisColor = theme.palette.text.secondary
+    const seriesColor = isThemeDark ? '#fff' : theme.palette.primary.main
+    const axisColor = isThemeDark ? '#fff' : theme.palette.text.secondary
 
     // 2. RENDER
     return (
-        <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" component="h2">Next 24 Hours</Typography>
+        <Paper sx={{ ...glassSx, p: 2 }}>
+            <Typography 
+                variant="h6" 
+                component="h2"
+                sx={{
+                    color: isThemeDark ? '#fff' : '#000'
+                }}
+            >Next 24 Hours</Typography>
 
             {hourlyTrend.length === 0 ? (
                 <Typography color="text.secondary" sx={{ py: 2 }}> - No Forecast Data - </Typography>

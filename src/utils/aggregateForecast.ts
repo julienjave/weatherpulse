@@ -26,6 +26,11 @@ export function getLocalDateKey(dtSeconds: number, timezoneOffsetSeconds: number
     return cityDate.toISOString().split('T')[0]
 }
 
+export function getLocalHour(dtSeconds: number, timezoneOffsetSeconds: number): number {
+    // Same UTC-shift trick as above, so getUTCHours() returns the city-local hour
+    return new Date((dtSeconds + timezoneOffsetSeconds) * 1000).getUTCHours()
+}
+
 
 // === UTILITY FUNCTION ====================================================================
 
@@ -54,10 +59,14 @@ export function aggregateDailyForecast(
         const maxTemp = Math.max(...dayItems.map((i) => i.main.temp_max))
         const minTemp = Math.min(...dayItems.map((i) => i.main.temp_min))
 
-        // Pick a representative mid-day entry (around 12:00-15:00) for the icon/description
-        // If mid-day slot isn't in array (e.g., today's partial data), fall back to middle element
-        const midIndex = Math.floor(dayItems.length / 2)
-        const representativeItem = dayItems[midIndex]
+        // Pick a representative mid-day entry (closest to 13:00 local) for the icon/description
+        // Prefer daytime slots so partial days don't fall on a night slot
+        const daytimeItems = dayItems.filter((i) => i.sys.pod === 'd')
+        const candidates = daytimeItems.length > 0 ? daytimeItems : dayItems
+        const distanceToMidday = (i: ForecastItem) => Math.abs(getLocalHour(i.dt, cityTimezoneOffset) - 13)
+        const representativeItem = candidates.reduce((best, i) =>
+            distanceToMidday(i) < distanceToMidday(best) ? i : best
+        )
 
         // Format date label for UI display
         const dateLabel = formatLocalTime(cityTimezoneOffset, 'day-short', representativeItem.dt)

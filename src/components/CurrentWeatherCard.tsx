@@ -3,23 +3,20 @@ import {
     Card,
     Typography
 } from '@mui/material'
-import { ForecastCard } from './ForecastCard'
 import type { 
     CurrentWeatherResponse,
-    ForecastResponse,
     GeocodingLocation,
     TemperatureUnit
 } from '../types/weather'
 import { formatLocalTime } from '../utils/formatLocalTime'
-import { type DailyForecastSummary, aggregateDailyForecast, getLocalDateKey } from '../utils/aggregateForecast'
-import { type WeatherThemeKit, getWeatherThemeKit } from '../utils/weatherThemes'
+import { type WeatherThemeKit } from '../utils/weatherThemes'
 import { getIconUrl } from '../utils/weatherIcons'
 
 // === TYPES & INTERFACES ==================================================================
 
 export interface CurrentWeatherCardProps {
     weatherData: CurrentWeatherResponse
-    forecastData: ForecastResponse | null
+    theme: WeatherThemeKit
     selectedCity: GeocodingLocation
     units: TemperatureUnit
 }
@@ -28,7 +25,7 @@ export interface CurrentWeatherCardProps {
 
 export function CurrentWeatherCard ({
     weatherData,
-    forecastData,
+    theme,
     selectedCity,
     units,
 }: CurrentWeatherCardProps) {
@@ -36,30 +33,26 @@ export function CurrentWeatherCard ({
     // 1. VARIABLES
     const currentDate: string = formatLocalTime(weatherData.timezone, 'day-long')
     const currentTime: string = formatLocalTime(weatherData.timezone, 'time')
-    const theme: WeatherThemeKit = getWeatherThemeKit(weatherData.weather[0].id, weatherData.weather[0].icon)
-    let fourDayForecast: DailyForecastSummary[] | null = null
-
-    // Pre-process forecast data
-    if(forecastData) {
-        const forecastDailySummaries: DailyForecastSummary[] = aggregateDailyForecast(
-            forecastData.list,
-            forecastData.city.timezone
-        )
-
-        // Remove the current day to avoid redundancy
-        const todayKey: string = getLocalDateKey(weatherData.dt, weatherData.timezone)
-        // Filter out today by date key match, then cap at 4 days
-        fourDayForecast = forecastDailySummaries
-            .filter((day) => day.dateKey !== todayKey)
-            .slice(0,4)
-    }
 
     // 2. RENDER
     return (
-        <Card sx={{ p: 1 }}>
+        <Card sx={{
+            p: 1,
+            background: 'transparent', // Shorthand also clears MUI's dark-mode elevation overlay (a background-image)
+            boxShadow: 'none',
+            color: theme.theme.isDark ? '#fff' : '#000'
+        }}>
             
             {/* DATE & LOCATION */}
-            <Box component="article" id='current-date'>
+            <Box 
+                component="article" 
+                id='current-date'
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
                 <Typography variant='h3'>Today</Typography>
                 <Typography variant='h4'>{currentDate}</Typography>
                 <Typography variant='h4'>{currentTime}</Typography>
@@ -80,14 +73,24 @@ export function CurrentWeatherCard ({
                     }}
                 >
                     {/* Conditions */}
-                    <Box id='weather-condition'>
+                    <Box 
+                        id='weather-condition'
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1
+                        }}
+                    >
                         <Box 
                             component="img"
                             alt='weather icon'
                             src={getIconUrl(theme.icon)}
                             sx={{maxWidth: 250}}
                         />
-                        <Typography variant='h5'>{weatherData.weather[0].description}</Typography>
+                        <Typography variant='h5'>
+                            {weatherData.weather[0].description}
+                        </Typography>
                     </Box>
 
                     {/* Temperatures */}
@@ -116,11 +119,6 @@ export function CurrentWeatherCard ({
                         </Box>
                     </Box>
                 </Box>   
-            )}
-
-            {/* 5-DAY FORECAST */}
-            {fourDayForecast && (
-                <ForecastCard forecastList={fourDayForecast} units={units}/>
             )}
 
         </Card>
