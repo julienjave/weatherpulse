@@ -106,10 +106,10 @@ export function getWeatherTheme(conditionId: number, iconCode?: string): Weather
     if(conditionId === 800) return isNight ? THEMES["clear-night"] : THEMES["clear-day"]
 
     // 7. Few / Scattered Clouds (801-802) - mostly sunny by day, so keep it light
-    if(conditionId === 801 || conditionId === 802) return isNight ? THEMES.clouds : THEMES['partly-cloudy']
+    if(conditionId === 801 || conditionId === 802) return isNight ? THEMES["clear-night"] : THEMES['partly-cloudy']
 
     // 8. Broken Clouds / Overcast (803+)
-    if(conditionId>802 && conditionId<810) return THEMES.clouds
+    if(conditionId>802 && conditionId<810) return isNight ? THEMES["clear-night"] : THEMES.clouds
 
     // Default fallback
     return isNight ? THEMES["clear-night"] : THEMES["clear-day"] 

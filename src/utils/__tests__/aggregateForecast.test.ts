@@ -114,7 +114,7 @@ describe('aggregateForecast', () => {
 
       expect(day.description).toBe('light rain')
       expect(day.theme.theme.key).toBe('rain')
-      expect(day.theme.icon).toBe('light-rain-day.svg')
+      expect(day.theme.icon).toBe('light-rain.png')
     })
 
     it('should prefer a daytime slot over a closer night slot', () => {
@@ -137,7 +137,7 @@ describe('aggregateForecast', () => {
       const [day] = aggregateDailyForecast(list, 0)
 
       expect(day.description).toBe('broken clouds') // 21:00 is closer to 13:00 than 00:00
-      expect(day.theme.icon).toBe('overcast-night.svg')
+      expect(day.theme.icon).toBe('overcast.png')
     })
 
     it('should label each day from its representative slot', () => {

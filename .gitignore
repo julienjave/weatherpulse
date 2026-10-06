@@ -28,3 +28,6 @@ codebase-snapshot.md
 *.sw?
 extra
 
+# Dev-only files
+src/components/ThemePreview.tsx
+

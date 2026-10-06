@@ -28,18 +28,23 @@ describe('weatherThemes', () => {
 
   describe('getWeatherIcon', () => {
     it('should return clear day/night icons correctly', () => {
-      expect(getWeatherIcon(800, '01d')).toBe('clear-day.svg')
-      expect(getWeatherIcon(800, '01n')).toBe('clear-night.svg')
+      expect(getWeatherIcon(800, '01d')).toBe('clear-day.png')
+      expect(getWeatherIcon(800, '01n')).toBe('clear-night.png')
     })
 
-    it('should return drizzle icons correctly', () => {
-      expect(getWeatherIcon(301, '09d')).toBe('drizzle-day.svg')
-      expect(getWeatherIcon(301, '09n')).toBe('drizzle-night.svg')
+    it('should return partly-cloudy day/night icons correctly', () => {
+      expect(getWeatherIcon(801, '02d')).toBe('partly-cloudy-day.png')
+      expect(getWeatherIcon(801, '02n')).toBe('partly-cloudy-night.png')
     })
 
-    it('should return thunderstorm icons correctly', () => {
-      expect(getWeatherIcon(211, '11d')).toBe('thunderstorm-day.svg')
-      expect(getWeatherIcon(211, '11n')).toBe('thunderstorm-night.svg')
+    it('should return the drizzle icon for 3xx codes', () => {
+      expect(getWeatherIcon(300, '09d')).toBe('drizzle.png')
+      expect(getWeatherIcon(321, '09n')).toBe('drizzle.png')
+    })
+
+    it('should return the thunderstorm icon for codes 210 and 211', () => {
+      expect(getWeatherIcon(210, '11d')).toBe('thunderstorm.png')
+      expect(getWeatherIcon(211, '11n')).toBe('thunderstorm.png')
     })
   })
 
@@ -65,18 +70,22 @@ describe('weatherThemes', () => {
       expect(getWeatherTheme(code, '01d').key).toBe(expectedKey)
     })
 
-    it('should ignore day/night for non-clear conditions', () => {
+    it('should ignore day/night for precipitation and atmosphere conditions', () => {
+      expect(getWeatherTheme(211, '11n').key).toBe('thunderstorm')
+      expect(getWeatherTheme(301, '09n').key).toBe('drizzle')
       expect(getWeatherTheme(502, '10n').key).toBe('rain')
-      expect(getWeatherTheme(804, '04n').key).toBe('clouds')
+      expect(getWeatherTheme(601, '13n').key).toBe('snow')
+      expect(getWeatherTheme(741, '50n').key).toBe('atmosphere')
     })
 
-    it('should use the dark clouds theme for few/scattered clouds at night', () => {
-      expect(getWeatherTheme(801, '02n').key).toBe('clouds')
-      expect(getWeatherTheme(802, '03n').key).toBe('clouds')
+    it.each([801, 802, 803, 804])('should use the clear-night theme for cloud code %i at night', (code) => {
+      expect(getWeatherTheme(code, '04n').key).toBe('clear-night')
     })
 
     it('should default to day when no icon code is provided', () => {
       expect(getWeatherTheme(800).key).toBe('clear-day')
+      expect(getWeatherTheme(801).key).toBe('partly-cloudy')
+      expect(getWeatherTheme(804).key).toBe('clouds')
     })
 
     it('should fall back to clear day/night for unknown codes', () => {
@@ -93,8 +102,11 @@ describe('weatherThemes', () => {
 
   describe('getWeatherIcon (all condition groups)', () => {
     it.each([
-      [801, 'partly-cloudy'],
       [802, 'cloudy'],
+      [803, 'overcast'],
+      [804, 'overcast'],
+      [300, 'drizzle'],
+      [321, 'drizzle'],
       [500, 'light-rain'],
       [520, 'light-rain'],
       [501, 'rain'],
@@ -118,30 +130,26 @@ describe('weatherThemes', () => {
       [771, 'tornado'],
       [781, 'tornado'],
       [210, 'thunderstorm'],
+      [211, 'thunderstorm'],
       [212, 'heavy-thunderstorm'],
       [221, 'heavy-thunderstorm'],
       [200, 'rain-thunderstorm'],
       [202, 'rain-thunderstorm'],
       [230, 'rain-thunderstorm'],
       [232, 'rain-thunderstorm'],
-    ])('should map code %i to the %s icon', (code, iconName) => {
-      expect(getWeatherIcon(code, '01d')).toBe(`${iconName}-day.svg`)
-      expect(getWeatherIcon(code, '01n')).toBe(`${iconName}-night.svg`)
+    ])('should map code %i to the same %s icon by day and night', (code, iconName) => {
+      expect(getWeatherIcon(code, '01d')).toBe(`${iconName}.png`)
+      expect(getWeatherIcon(code, '01n')).toBe(`${iconName}.png`)
     })
 
     it('should default to day when no icon code is provided', () => {
-      expect(getWeatherIcon(500)).toBe('light-rain-day.svg')
+      expect(getWeatherIcon(800)).toBe('clear-day.png')
+      expect(getWeatherIcon(801)).toBe('partly-cloudy-day.png')
     })
 
     it('should fall back to clear day/night for unknown codes', () => {
-      expect(getWeatherIcon(100, '01d')).toBe('clear-day.svg')
-      expect(getWeatherIcon(900, '01n')).toBe('clear-night.svg')
-    })
-
-    // Regression: 803 (broken clouds) and 804 (overcast) used to fall through to clear-*.svg
-    it.each([803, 804])('should map code %i to an overcast icon', (code) => {
-      expect(getWeatherIcon(code, '04d')).toBe('overcast-day.svg')
-      expect(getWeatherIcon(code, '04n')).toBe('overcast-night.svg')
+      expect(getWeatherIcon(100, '01d')).toBe('clear-day.png')
+      expect(getWeatherIcon(900, '01n')).toBe('clear-night.png')
     })
   })
 
@@ -149,7 +157,13 @@ describe('weatherThemes', () => {
     it('should combine theme and icon into a complete theme kit', () => {
       const kit = getWeatherThemeKit(800, '01d')
       expect(kit.theme.key).toBe('clear-day')
-      expect(kit.icon).toBe('clear-day.svg')
+      expect(kit.icon).toBe('clear-day.png')
+    })
+
+    it('should pass the day/night flag through to both theme and icon', () => {
+      const kit = getWeatherThemeKit(801, '02n')
+      expect(kit.theme.key).toBe('clear-night')
+      expect(kit.icon).toBe('partly-cloudy-night.png')
     })
   })
 })
