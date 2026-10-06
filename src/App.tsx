@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { Container, Box, Typography } from '@mui/material'
+import { Container, Box, Typography, Stack } from '@mui/material'
 import { SearchBar } from './components/SearchBar'
 import { FavoritesBar } from './components/FavoritesBar'
 import { WeatherPanel } from './components/WeatherPanel'
@@ -10,6 +10,7 @@ import { type Coordinates, useGeolocation } from './hooks/useGeolocation'
 import { getReverseGeocode } from './services/weatherApi'
 import { useFavorites } from './hooks/useFavorites'
 import { useNotification } from './hooks/useNotification'
+import logo from './assets/weather-pulse-logo.png'
 import './App.css'
 
 function App() {
@@ -110,15 +111,39 @@ function App() {
 
   return (
     <>
-      <Container maxWidth="md" sx={{ py: 4, backgroundColor: "#f88de1" }}>
+      <Container 
+        maxWidth="md" 
+        sx={{ 
+          height: '100vh',
+          minHeight: 'fit-content',
+          py: 4, 
+          background: 'linear-gradient(135deg, #d87141 0%, #eca529 50%, #ffe601 100%)'
+        }}
+      >
         {/* Header */}
-        <Box component="header" sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
-            WeatherPulse
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            Real-time weather forecast & air quality tracking
-          </Typography>
+        <Box 
+          component="header" 
+          sx={{ 
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 3,
+            mb: 4 }}>
+          <Box 
+            component="img"
+            alt='Weather Pulse logo'
+            src={logo}
+            sx={{ maxWidth: 250 }}
+          />
+          <Stack sx={{ textAlign: 'center'}}>
+            <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1, fontFamily: `'Outfit', sans-serif`}}>
+              WeatherPulse
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary" sx={{ fontFamily: `'Outfit', sans-serif` }}>
+              Real-time weather forecast & air quality tracking
+            </Typography>
+          </Stack>
         </Box>
 
         {/* SearchBar Component */}

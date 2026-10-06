@@ -39,7 +39,7 @@ export function WeatherMetricsCard({
                 }}>
                     <Tooltip title="Humidity">
                         <span>
-                            <WaterDropIcon />
+                            <WaterDropIcon sx={{ fill: theme.theme.isDark ? '#00aaff' : '#009ae6' }} />
                         </span>
                     </Tooltip>
                     <Typography
@@ -58,7 +58,7 @@ export function WeatherMetricsCard({
                 }}>
                     <Tooltip title="Wind">
                         <span>
-                            <AirIcon />
+                            <AirIcon sx={{ fill: theme.theme.isDark ? '#b3e3fb' : '#6a8c9c' }} />
                         </span>
                     </Tooltip>
                     <Typography
@@ -77,7 +77,7 @@ export function WeatherMetricsCard({
                 }}>
                     <Tooltip title="Air Quality Index">
                         <span>
-                            <EmojiNatureIcon />
+                            <EmojiNatureIcon sx={{ fill: theme.theme.isDark ? '#22f02c' : '#09900f' }} />
                         </span>
                     </Tooltip>
                     { aqiData ? (
