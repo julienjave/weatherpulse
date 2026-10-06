@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { ComponentProps } from 'react'
@@ -85,5 +85,27 @@ describe('FavoritesBar Component', () => {
 
     expect(screen.getByRole('button', { name: 'Sydney, AU' })).toHaveAttribute('aria-current', 'true')
     expect(screen.getByRole('button', { name: 'Paris, FR' })).not.toHaveAttribute('aria-current')
+  })
+
+  it('removes a chip (after its exit animation) when the city is removed from favorites', async () => {
+    const { rerender } = renderFavoritesBar()
+
+    rerender(
+      <FavoritesBar favorites={[SYDNEY]} selectedCity={null} onSelect={mockOnSelect} onDelete={mockOnDelete} />
+    )
+
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Paris, FR' })).not.toBeInTheDocument())
+    expect(screen.getByRole('button', { name: 'Sydney, AU' })).toBeInTheDocument()
+  })
+
+  it('shows the placeholder again once the last chip is removed', async () => {
+    const { rerender } = renderFavoritesBar({ favorites: [PARIS] })
+
+    rerender(
+      <FavoritesBar favorites={[]} selectedCity={null} onSelect={mockOnSelect} onDelete={mockOnDelete} />
+    )
+
+    expect(await screen.findByText('No favorites yet')).toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Paris, FR' })).not.toBeInTheDocument())
   })
 })

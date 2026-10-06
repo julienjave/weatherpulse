@@ -11,6 +11,7 @@ import type {
 import { formatLocalTime } from '../utils/formatLocalTime'
 import { type WeatherThemeKit } from '../utils/weatherThemes'
 import { getIconUrl } from '../utils/weatherIcons'
+import { AnimatedText } from './AnimatedText'
 
 // === TYPES & INTERFACES ==================================================================
 
@@ -96,7 +97,7 @@ export function CurrentWeatherCard ({
                     {/* Temperatures */}
                     <Box id='weather-temp'>
                         <Typography sx={{fontSize: '4rem'}}>
-                            {`${Math.round(weatherData.main.temp)}°${units === 'metric' ? 'C' : 'F'}`}
+                            <AnimatedText text={`${Math.round(weatherData.main.temp)}°${units === 'metric' ? 'C' : 'F'}`} />
                         </Typography>
                         <Box 
                             id='weather-feels-like'
@@ -112,7 +113,7 @@ export function CurrentWeatherCard ({
                             <Box id='weather-feels-like-temp'>
                                 <Typography variant='body1'>Feels like</Typography>
                                 <Typography variant='h4'>
-                                    {`${Math.round(weatherData.main.feels_like)}°${units === 'metric' ? 'C' : 'F'}`}
+                                    <AnimatedText text={`${Math.round(weatherData.main.feels_like)}°${units === 'metric' ? 'C' : 'F'}`} />
                                 </Typography>
                             </Box>
                             <Typography sx={{fontSize: '4rem'}}>)</Typography>

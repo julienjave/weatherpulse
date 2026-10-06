@@ -6,6 +6,7 @@ import type { TemperatureUnit } from "../types/weather"
 import type { UsAqiResult } from "../utils/aqiConverter"
 import { glassSx } from '../utils/glassStyles'
 import type { WeatherThemeKit } from "../utils/weatherThemes"
+import { AnimatedText } from "./AnimatedText"
 
 
 // === TYPES & INTERFACES ==================================================================
@@ -66,7 +67,7 @@ export function WeatherMetricsCard({
                             color: theme.theme.isDark ? '#fff' : '#000'
                         }}
                     >
-                        {`${wind}${units==='metric' ? 'm/s':'mph'}`}
+                        <AnimatedText text={`${wind}${units==='metric' ? 'm/s':'mph'}`} />
                     </Typography>
                 </Box>
                 <Box sx={{

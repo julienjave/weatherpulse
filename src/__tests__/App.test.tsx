@@ -232,6 +232,45 @@ describe('App', () => {
     )
   })
 
+  it('never shows the old value with the new unit symbol while the unit refetch is in flight', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await loadSydney(user)
+    expect(await screen.findByText('22°C')).toBeInTheDocument()
+
+    let resolveRefetch!: (value: CurrentWeatherResult) => void
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockReturnValueOnce(
+      new Promise<CurrentWeatherResult>((resolve) => { resolveRefetch = resolve })
+    )
+    await user.click(screen.getByRole('switch'))
+
+    // Switch already flipped, but the card still labels the °C data as °C
+    expect(screen.getByRole('switch')).not.toBeChecked()
+    expect(screen.getByText('22°C')).toBeInTheDocument()
+    expect(screen.queryByText('22°F')).not.toBeInTheDocument()
+
+    resolveRefetch({ data: makeCurrentWeather(70.9, 68.7), error: null })
+
+    expect(await screen.findByText('71°F')).toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByText('22°C')).not.toBeInTheDocument())
+  })
+
+  it('hides the old-unit forecast when only the forecast refetch fails on a unit toggle', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await loadSydney(user)
+    // The °C forecast is loaded (fixture slots are all "today", so it feeds the trends chart only)
+    expect(await screen.findByText('22°C')).toBeInTheDocument()
+    expect(screen.queryByText(/No Forecast Data/)).not.toBeInTheDocument()
+
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockResolvedValueOnce({ data: makeCurrentWeather(70.9, 68.7), error: null })
+    vi.mocked(weatherApi.fetch5DayForecastByCoords).mockResolvedValueOnce({ data: null, error: { status: 500, message: 'Forecast down' } })
+    await user.click(screen.getByRole('switch'))
+
+    expect(await screen.findByText('71°F')).toBeInTheDocument()
+    expect(screen.getByText(/No Forecast Data/)).toBeInTheDocument()
+  })
+
   describe('favorites', () => {
     it('adds the selected city to the favorites bar and persists it', async () => {
       const user = userEvent.setup()

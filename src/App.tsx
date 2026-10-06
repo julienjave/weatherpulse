@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { Container, Box, Typography, Stack } from '@mui/material'
+import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { SearchBar } from './components/SearchBar'
 import { FavoritesBar } from './components/FavoritesBar'
 import { WeatherPanel } from './components/WeatherPanel'
@@ -10,6 +11,7 @@ import { type Coordinates, useGeolocation } from './hooks/useGeolocation'
 import { getReverseGeocode } from './services/weatherApi'
 import { useFavorites } from './hooks/useFavorites'
 import { useNotification } from './hooks/useNotification'
+import { fade } from './utils/motionVariants'
 import logo from './assets/weather-pulse-logo.png'
 import './App.css'
 
@@ -23,6 +25,7 @@ function App() {
     aqiData,
     selectedCity,
     units,
+    dataUnits,
     isLoading: isWeatherLoading,
     error: weatherError,
     handleSelectLocation,
@@ -110,7 +113,8 @@ function App() {
   },[selectedCity, toggleFavorite])
 
   return (
-    <>
+    // reducedMotion="user": honors the OS "reduce motion" setting (keeps fades, drops slides & layout moves)
+    <MotionConfig reducedMotion="user">
       <Container 
         maxWidth="md" 
         sx={{ 
@@ -164,27 +168,37 @@ function App() {
         />
 
         {/* Weather Panel (skeleton while a new city's data is loading) */}
-        {selectedCity && !weatherData && isWeatherLoading && <WeatherPanelSkeleton />}
+        {/* mode="wait": the outgoing view fades out before the incoming one fades in */}
+        <AnimatePresence mode="wait">
+          {selectedCity && !weatherData && isWeatherLoading && (
+            <motion.div key="skeleton" variants={fade} initial="hidden" animate="visible" exit="exit">
+              <WeatherPanelSkeleton />
+            </motion.div>
+          )}
 
-        {selectedCity && weatherData && (
-          <WeatherPanel
-            weatherData={weatherData}
-            forecastData={forecastData}
-            aqiData={aqiData}
-            selectedCity={selectedCity}
-            units={units}
-            isFavorite={isFavorite(selectedCity)}
-            isFavoritesFull={isFavoritesFull}
-            onToggleFavorite={handleToggleFavorite}
-            onToggleUnit={handleToggleUnits}
-          />
-        )}
+          {selectedCity && weatherData && (
+            <WeatherPanel
+              // Keyed by city so switching cities replays the entry animation
+              key={`${selectedCity.lat},${selectedCity.lon}`}
+              weatherData={weatherData}
+              forecastData={forecastData}
+              aqiData={aqiData}
+              selectedCity={selectedCity}
+              units={units}
+              dataUnits={dataUnits}
+              isFavorite={isFavorite(selectedCity)}
+              isFavoritesFull={isFavoritesFull}
+              onToggleFavorite={handleToggleFavorite}
+              onToggleUnit={handleToggleUnits}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Error Toasts */}
         <NotificationToast notification={notification} onClose={dismissNotification} />
 
       </Container>
-    </>
+    </MotionConfig>
   )
 }
 

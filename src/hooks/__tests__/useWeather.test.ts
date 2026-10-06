@@ -157,6 +157,91 @@ describe('useWeather', () => {
     return { promise, resolve }
   }
 
+  it('should keep dataUnits on the old unit until the unit-toggle refetch lands', async () => {
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockResolvedValueOnce({ data: { name: 'Sydney' } as never, error: null })
+    vi.mocked(weatherApi.fetch5DayForecastByCoords).mockResolvedValue({ data: { list: [] } as never, error: null })
+    vi.mocked(weatherApi.fetchAirQualityByCoords).mockResolvedValue({ data: { list: [] } as never, error: null })
+
+    const { result } = renderHook(() => useWeather())
+
+    await act(async () => {
+      result.current.handleSelectLocation(mockLocation)
+    })
+    expect(result.current.dataUnits).toBe('metric')
+
+    // Hold the refetch in flight
+    const pending = deferred<CurrentWeatherResult>()
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockReturnValueOnce(pending.promise)
+
+    act(() => {
+      result.current.handleToggleUnits()
+    })
+
+    // Switch state flips instantly, the displayed data's unit doesn't
+    expect(result.current.units).toBe('imperial')
+    expect(result.current.dataUnits).toBe('metric')
+
+    await act(async () => {
+      pending.resolve({ data: { name: 'Sydney' } as never, error: null })
+    })
+
+    expect(result.current.dataUnits).toBe('imperial')
+  })
+
+  it('should keep dataUnits on the old unit when the unit-toggle refetch fails', async () => {
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockResolvedValueOnce({ data: { name: 'Sydney' } as never, error: null })
+    vi.mocked(weatherApi.fetch5DayForecastByCoords).mockResolvedValue({ data: { list: [] } as never, error: null })
+    vi.mocked(weatherApi.fetchAirQualityByCoords).mockResolvedValue({ data: { list: [] } as never, error: null })
+
+    const { result } = renderHook(() => useWeather())
+
+    await act(async () => {
+      result.current.handleSelectLocation(mockLocation)
+    })
+
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockResolvedValueOnce({
+      data: null,
+      error: { message: 'Server error' } as never,
+    })
+
+    await act(async () => {
+      result.current.handleToggleUnits()
+    })
+
+    // The old °C data is still on screen, so it must keep its °C label
+    expect(result.current.units).toBe('imperial')
+    expect(result.current.dataUnits).toBe('metric')
+  })
+
+  it('should drop the old-unit forecast (but keep air quality) when only the forecast refetch fails', async () => {
+    vi.mocked(weatherApi.fetchCurrentWeatherByCoords).mockResolvedValue({ data: { name: 'Sydney' } as never, error: null })
+    vi.mocked(weatherApi.fetch5DayForecastByCoords).mockResolvedValueOnce({ data: { list: [] } as never, error: null })
+    vi.mocked(weatherApi.fetchAirQualityByCoords).mockResolvedValue({ data: { list: [] } as never, error: null })
+
+    const { result } = renderHook(() => useWeather())
+
+    await act(async () => {
+      result.current.handleSelectLocation(mockLocation)
+    })
+    expect(result.current.forecastData).not.toBeNull()
+
+    vi.mocked(weatherApi.fetch5DayForecastByCoords).mockResolvedValueOnce({
+      data: null,
+      error: { status: 500, message: 'Forecast down' },
+    })
+
+    await act(async () => {
+      result.current.handleToggleUnits()
+    })
+
+    // °F current weather landed, so a °C forecast can't stay on screen under the °F label
+    expect(result.current.dataUnits).toBe('imperial')
+    expect(result.current.forecastData).toBeNull()
+    // Air quality doesn't depend on the unit, so the last reading is still valid
+    expect(result.current.aqiData).toEqual({ list: [] })
+    expect(result.current.error).toBeNull()
+  })
+
   it('should not fetch when toggling units without a selected city', async () => {
     const { result } = renderHook(() => useWeather())
 

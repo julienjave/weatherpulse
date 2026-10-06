@@ -7,6 +7,7 @@ import type { TemperatureUnit } from '../types/weather'
 import { type DailyForecastSummary } from '../utils/aggregateForecast'
 import { getIconUrl } from '../utils/weatherIcons'
 import { glassSx } from '../utils/glassStyles'
+import { AnimatedText } from './AnimatedText'
 
 // === TYPES & INTERFACES ==================================================================
 
@@ -86,7 +87,7 @@ export function ForecastCard({ forecastList, units }: ForecastCardProps) {
                                         color: dailySummary.theme.theme.isDark ? '#ffcaca' : '#c62828'
                                      }}
                                 >
-                                    {`High: ${dailySummary.tempMax}°${units === 'metric' ? 'C' : 'F'}`}
+                                    <AnimatedText text={`High: ${dailySummary.tempMax}°${units === 'metric' ? 'C' : 'F'}`} />
                                 </Typography>
                                 <Typography 
                                     sx={{ 
@@ -94,7 +95,7 @@ export function ForecastCard({ forecastList, units }: ForecastCardProps) {
                                         color: dailySummary.theme.theme.isDark ? '#80caff' : '#0d47a1'
                                     }}
                                 >
-                                    {`Low: ${dailySummary.tempMin}°${units === 'metric' ? 'C' : 'F'}`}
+                                    <AnimatedText text={`Low: ${dailySummary.tempMin}°${units === 'metric' ? 'C' : 'F'}`} />
                                 </Typography>
                             </Box>
                         </Box>

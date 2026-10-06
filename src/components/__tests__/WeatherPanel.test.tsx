@@ -84,6 +84,7 @@ describe('WeatherPanel Component', () => {
       aqiData: makeAirQuality(6),
       selectedCity: sydney,
       units: 'metric',
+      dataUnits: 'metric',
       isFavorite: false,
       isFavoritesFull: false,
       onToggleFavorite: vi.fn(),
@@ -143,12 +144,23 @@ describe('WeatherPanel Component', () => {
   })
 
   it('passes the units down to every card', () => {
-    renderPanel({ units: 'imperial' })
+    renderPanel({ units: 'imperial', dataUnits: 'imperial' })
 
     expect(screen.getByRole('switch')).not.toBeChecked()
     expect(screen.getByText('22°F')).toBeInTheDocument()
     expect(screen.getByText('4.1mph')).toBeInTheDocument()
     expect(screen.getAllByText('High: 25°F')).toHaveLength(4)
+  })
+
+  it('flips the switch immediately but keeps card symbols on the data units until new data lands', () => {
+    // Mid unit-toggle: the switch is already on °F, the °C data hasn't been refetched yet
+    renderPanel({ units: 'imperial', dataUnits: 'metric' })
+
+    expect(screen.getByRole('switch')).not.toBeChecked()
+    expect(screen.getByText('22°C')).toBeInTheDocument()
+    expect(screen.queryByText('22°F')).not.toBeInTheDocument()
+    expect(screen.getByText('4.1m/s')).toBeInTheDocument()
+    expect(screen.getAllByText('High: 25°C')).toHaveLength(4)
   })
 
   it('themes the cards from the current weather condition', () => {

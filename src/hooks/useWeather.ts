@@ -22,6 +22,8 @@ export function useWeather() {
     const [aqiData, setAqiData] = useState<AirQualityResponse | null>(null)
     const [selectedCity, setSelectedCity] = useState<GeocodingLocation | null>(null)
     const [units, setUnits] = useState<TemperatureUnit>('metric')
+    // Unit the displayed data was fetched in: lags behind `units` until a unit-toggle refetch lands
+    const [dataUnits, setDataUnits] = useState<TemperatureUnit>('metric')
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -64,9 +66,14 @@ export function useWeather() {
             }
     
             // G. Update state with successful payload data
-            if(currentRes.data) setWeatherData(currentRes.data)
-            
-            if(forecastRes.data) setForecastData(forecastRes.data)
+            // Data and its unit are set together so values never render with the wrong symbol
+            if(currentRes.data) {
+                setWeatherData(currentRes.data)
+                setDataUnits(currentUnit)
+                // The forecast is unit-dependent too: if its refetch failed, drop the old one rather
+                // than show it under the new `dataUnits` label (the UI shows its empty state instead)
+                setForecastData(forecastRes.data ?? null)
+            }
     
             if(aqiRes.data) setAqiData(aqiRes.data)
             
@@ -80,7 +87,7 @@ export function useWeather() {
                 setIsLoading(false)
             }
         }
-    }, [])
+    }, [units])
 
     // 4. HANDLER: SELECT NEW LOCATION FROM SEARCHBAR
     const handleSelectLocation = useCallback((location: GeocodingLocation) => {
@@ -141,6 +148,7 @@ export function useWeather() {
         aqiData,
         selectedCity,
         units,
+        dataUnits,
         isLoading,
         error,
         handleSelectLocation,
