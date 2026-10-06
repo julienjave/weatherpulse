@@ -11,6 +11,10 @@
   ![MUI](https://img.shields.io/badge/MUI-9-007FFF?logo=mui&logoColor=white)
   ![Vitest](https://img.shields.io/badge/Tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)
   ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+  <br />
+
+  ![WeatherPulse demo](docs/weatherpulse-demo.gif)
 </div>
 
 ---
@@ -105,6 +109,8 @@ All weather data comes from the [OpenWeatherMap API](https://openweathermap.org/
 
 ```text
 weatherpulse/
+├── docs/
+│   └── weatherpulse-demo.gif       # Demo animation used in this README
 ├── public/
 │   └── favicon.png
 ├── src/
