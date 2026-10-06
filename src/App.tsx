@@ -14,6 +14,7 @@ import { useNotification } from './hooks/useNotification'
 import { fade } from './utils/motionVariants'
 import logo from './assets/weather-pulse-logo.png'
 import './App.css'
+import { ThemePreview } from './components/ThemePreview'
 
 function App() {
 
