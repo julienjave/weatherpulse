@@ -46,6 +46,8 @@ The whole UI changes its look to match the weather. Each condition (clear day, c
 
 All weather data comes from the [OpenWeatherMap API](https://openweathermap.org/api).
 
+Live demo: [WeatherPulse](https://julienjave.github.io/weatherpulse/)
+
 ---
 
 ## Tech Stack
