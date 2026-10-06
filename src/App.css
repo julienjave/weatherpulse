@@ -1,0 +1,13 @@
+body {
+    background-color: #1b1740; /* Shown while the image loads */
+}
+
+/* Fixed full-viewport layer instead of `background-attachment: fixed`, which iOS Safari
+   ignores (it stretches the image over the whole page height instead) */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: url('./assets/weather-pulse-bg.jpg') center / cover no-repeat; /* `cover` fills any aspect ratio, cropping the edges */
+}

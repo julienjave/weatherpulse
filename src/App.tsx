@@ -14,7 +14,6 @@ import { useNotification } from './hooks/useNotification'
 import { fade } from './utils/motionVariants'
 import logo from './assets/weather-pulse-logo.png'
 import './App.css'
-import { ThemePreview } from './components/ThemePreview'
 
 function App() {
 
@@ -121,8 +120,7 @@ function App() {
         sx={{ 
           height: '100vh',
           minHeight: 'fit-content',
-          py: 4, 
-          background: 'linear-gradient(135deg, #d87141 0%, #eca529 50%, #ffe601 100%)'
+          py: 4,
         }}
       >
         {/* Header */}
@@ -130,22 +128,37 @@ function App() {
           component="header" 
           sx={{ 
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: { xs: 'column', sm: 'row' }, // Logo above the title on mobile
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 3,
+            gap: { xs: 1, sm: 3 },
             mb: 4 }}>
           <Box 
             component="img"
             alt='Weather Pulse logo'
             src={logo}
-            sx={{ maxWidth: 250 }}
+            sx={{ maxWidth: { xs: 160, sm: 250 } }}
           />
           <Stack sx={{ textAlign: 'center'}}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1, fontFamily: `'Outfit', sans-serif`}}>
+            <Typography 
+              variant="h3" 
+              component="h1" 
+              sx={{ 
+                fontWeight: 700, mb: 1, 
+                fontFamily: `'Outfit', sans-serif`, 
+                fontSize: { xs: '2.25rem', sm: '3rem' },
+                color: '#fff' 
+              }}
+            >
               WeatherPulse
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" sx={{ fontFamily: `'Outfit', sans-serif` }}>
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                fontFamily: `'Outfit', sans-serif`,
+                color: '#fff' 
+              }}
+            >
               Real-time weather forecast & air quality tracking
             </Typography>
           </Stack>

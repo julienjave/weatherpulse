@@ -25,12 +25,12 @@ export function WeatherPanelSkeleton() {
                 <Skeleton variant="rounded" width={90} height={60} />
             </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, width: 1 }}>
-                {/* CURRENT WEATHER CARD (60%) */}
-                <Skeleton variant="rounded" sx={{ flex: '3 1 0', minWidth: 0, height: 'auto', borderRadius: '12px' }} />
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 1, width: 1 }}>
+                {/* CURRENT WEATHER CARD (60% on md+, full width when stacked) */}
+                <Skeleton variant="rounded" sx={{ flex: { md: '3 1 0' }, minWidth: 0, height: { xs: 400, md: 'auto' }, borderRadius: '12px' }} />
 
-                {/* METRICS + TEMPERATURE TRENDS (40%) */}
-                <Stack sx={{ flex: '2 1 0', minWidth: 0, gap: 1 }}>
+                {/* METRICS + TEMPERATURE TRENDS (40% on md+) */}
+                <Stack sx={{ flex: { md: '2 1 0' }, minWidth: 0, gap: 1 }}>
                     <Skeleton variant="rounded" height={130} sx={{ borderRadius: '12px' }} />
                     <Skeleton variant="rounded" height={300} sx={{ borderRadius: '12px' }} />
                 </Stack>

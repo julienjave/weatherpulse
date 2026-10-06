@@ -54,9 +54,9 @@ export function CurrentWeatherCard ({
                     alignItems: 'center',
                 }}
             >
-                <Typography variant='h3'>Today</Typography>
-                <Typography variant='h4'>{currentDate}</Typography>
-                <Typography variant='h4'>{currentTime}</Typography>
+                <Typography variant='h3' sx={{ fontSize: { xs: '2.5rem', sm: '3rem' } }}>Today</Typography>
+                <Typography variant='h4' sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>{currentDate}</Typography>
+                <Typography variant='h4' sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>{currentTime}</Typography>
                 <Typography variant='h5'>{selectedCity?.name}{selectedCity?.country ? `, ${selectedCity.country}` : ''}</Typography>
             </Box>
 
@@ -70,7 +70,7 @@ export function CurrentWeatherCard ({
                         flexDirection: 'row', 
                         justifyContent: 'center',
                         alignItems: 'center', 
-                        gap: 5
+                        gap: { xs: 2, sm: 5 }
                     }}
                 >
                     {/* Conditions */}
@@ -87,7 +87,7 @@ export function CurrentWeatherCard ({
                             component="img"
                             alt='weather icon'
                             src={getIconUrl(theme.icon)}
-                            sx={{maxWidth: 250}}
+                            sx={{ width: '100%', maxWidth: { xs: 120, sm: 200, lg: 250 } }}
                         />
                         <Typography variant='h5'>
                             {weatherData.weather[0].description}
@@ -96,7 +96,7 @@ export function CurrentWeatherCard ({
 
                     {/* Temperatures */}
                     <Box id='weather-temp'>
-                        <Typography sx={{fontSize: '4rem'}}>
+                        <Typography sx={{ fontSize: { xs: '3rem', sm: '4rem' } }}>
                             <AnimatedText text={`${Math.round(weatherData.main.temp)}°${units === 'metric' ? 'C' : 'F'}`} />
                         </Typography>
                         <Box 
@@ -109,14 +109,14 @@ export function CurrentWeatherCard ({
                                 gap: 2
                             }}
                         >
-                            <Typography sx={{fontSize: '4rem'}}>(</Typography>
+                            <Typography sx={{ fontSize: { xs: '3rem', sm: '4rem' } }}>(</Typography>
                             <Box id='weather-feels-like-temp'>
                                 <Typography variant='body1'>Feels like</Typography>
                                 <Typography variant='h4'>
                                     <AnimatedText text={`${Math.round(weatherData.main.feels_like)}°${units === 'metric' ? 'C' : 'F'}`} />
                                 </Typography>
                             </Box>
-                            <Typography sx={{fontSize: '4rem'}}>)</Typography>
+                            <Typography sx={{ fontSize: { xs: '3rem', sm: '4rem' } }}>)</Typography>
                         </Box>
                     </Box>
                 </Box>   

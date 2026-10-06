@@ -102,16 +102,17 @@ export function WeatherPanel({
                 />
             </MotionBox>
 
+            {/* Side by side from md (900px) up; stacked on mobile & tablet where 60/40 is too narrow */}
             <Box sx={{
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: { xs: 'column', md: 'row' },
                 gap: 1,
                 width: 1
             }}>
                 {/* CURRENT WEATHER CARD */}
                 {/* Wrapper Box since CurrentWeatherCard doesn't accept an `sx` prop */}
                 <MotionBox variants={fadeSlideUp} sx={{
-                    flex: '3 1 0',          // 3 parts out of 5 = 60%
+                    flex: { md: '3 1 0' },  // 3 parts out of 5 = 60% (row layout only)
                     minWidth: 0,            // Allow shrinking below content width
                     display: 'flex',
                     '& > *': { flexGrow: 1 }, // Card fills the wrapper's width & height
@@ -125,7 +126,7 @@ export function WeatherPanel({
                 </MotionBox>
 
                 <Stack sx={{
-                    flex: '2 1 0',           // 2 parts out of 5 = 40%
+                    flex: { md: '2 1 0' },   // 2 parts out of 5 = 40% (row layout only)
                     minWidth: 0,             // Lets the Recharts chart shrink with the column
                     gap: 1,
                     '& > *': { flexGrow: 1 }, // Cards stretch to fill the column's height

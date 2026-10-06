@@ -66,12 +66,13 @@ export function ForecastCard({ forecastList, units }: ForecastCardProps) {
                             id={`forecast-${dailySummary.dateKey}-data`}
                             sx={{
                                 display: 'flex',
-                                flexDirection: 'row',
+                                flexDirection: { xs: 'column', md: 'row' }, // Icon above temps until cells are wide enough
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 gap: 1,
-                                mx: 1,
-                                p: 1
+                                mx: { xs: 0, md: 1 },
+                                p: 1,
+                                textAlign: { xs: 'center', md: 'left' }
                             }}
                         >
                             <Box 
