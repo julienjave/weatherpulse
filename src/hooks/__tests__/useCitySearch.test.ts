@@ -300,6 +300,27 @@ describe('useCitySearch', () => {
     expect(result.current.options).toEqual(london)
   })
 
+  it('should keep only the first result when several share the same name, state and country', async () => {
+    const parisFR = { name: 'Paris', lat: 48.8566, lon: 2.3522, country: 'FR', state: 'Ile-de-France' }
+    const parisFRDuplicate = { name: 'Paris', lat: 48.8589, lon: 2.32, country: 'FR', state: 'Ile-de-France' }
+    const parisTX = { name: 'Paris', lat: 33.6609, lon: -95.5555, country: 'US', state: 'Texas' }
+    const parisTN = { name: 'Paris', lat: 36.302, lon: -88.3267, country: 'US', state: 'Tennessee' }
+    vi.mocked(weatherApi.searchCityByName).mockResolvedValueOnce({
+      data: [parisFR, parisFRDuplicate, parisTX, parisTN],
+      error: null,
+    })
+    const { result } = renderHook(() => useCitySearch())
+
+    act(() => {
+      result.current.handleInputChange('Paris')
+    })
+    await act(async () => {
+      vi.advanceTimersByTime(500)
+    })
+
+    expect(result.current.options).toEqual([parisFR, parisTX, parisTN])
+  })
+
   it('should cancel a pending search on unmount', async () => {
     const { result, unmount } = renderHook(() => useCitySearch())
 

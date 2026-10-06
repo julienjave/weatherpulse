@@ -23,6 +23,23 @@ function createDebounce<T extends(...args: any[]) => void>(funct: T, wait: numbe
     return debounced
 }
 
+// The Geocoding API can return several records for the same city (e.g. the city itself and its
+// commune/administrative area), which look identical in the dropdown. Keep only the first one
+// per name/state/country, since results are ordered by relevance.
+function dedupeLocations(locations: GeocodingLocation[]): GeocodingLocation[] {
+    const seen = new Set<string>()
+
+    return locations.filter((location) => {
+        const key = [location.name, location.state ?? '', location.country]
+            .join('|')
+            .toLowerCase()
+
+        if(seen.has(key)) return false
+        seen.add(key)
+        return true
+    })
+}
+
 // === USECITYSEARCH ========================================================================
 
 export function useCitySearch() {
@@ -66,7 +83,7 @@ export function useCitySearch() {
             setSearchError(error.message)
             setOptions([])
         } else if(data) {
-            setOptions(data)
+            setOptions(dedupeLocations(data))
         }
         setIsSearching(false)
     }, [])
